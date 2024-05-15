@@ -11,7 +11,7 @@ class QMenu;
 class QPolygonF;
 QT_END_NAMESPACE
 
-class VoteTextItem;
+//class VoteTextItem;
 
 //! [0]
 class VoteGraphicItem : public QGraphicsPolygonItem
@@ -34,7 +34,7 @@ protected:
 private:
     DiagramType myDiagramType;
     QPolygonF myPolygon;
-    VoteTextItem * _textItem;
+    QGraphicsTextItem * _textItem;
 };
 //! [0]
 

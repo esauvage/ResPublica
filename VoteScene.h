@@ -4,7 +4,6 @@
 #include <QGraphicsScene>
 
 #include "voteGraphicItem.h"
-#include "voteTextItem.h"
 
 class VoteScene : public QGraphicsScene
 {
@@ -26,7 +25,6 @@ public:
 public slots:
     void setMode(Mode mode);
     void setItemType(VoteGraphicItem::DiagramType type);
-    void editorLostFocus(VoteTextItem *item);
 
 signals:
     void itemInserted(QPointF pos);
@@ -47,7 +45,6 @@ private:
     QPointF startPoint;
     QGraphicsLineItem *line;
     QFont myFont;
-    VoteTextItem *textItem;
     QColor myTextColor;
     QColor myItemColor;
     QColor myLineColor;

@@ -5,7 +5,7 @@
 #include <QMenu>
 #include <QPainter>
 
-#include "voteTextItem.h"
+//#include "voteTextItem.h"
 
 //! [0]
 VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, const QString &text, QGraphicsItem *parent)
@@ -42,7 +42,7 @@ VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, const QString &text, Q
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
-    auto textItem = new VoteTextItem(this);
+    auto textItem = new QGraphicsTextItem(this);
     textItem->setZValue(1000.0);
     textItem->setPlainText(text);
 //    connect(textItem, &VoteTextItem::lostFocus,

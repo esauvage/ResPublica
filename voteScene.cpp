@@ -12,7 +12,6 @@ VoteScene::VoteScene(QObject *parent)
     myMode = InsertItem;
     myItemType = VoteGraphicItem::Step;
     line = nullptr;
-    textItem = nullptr;
     myItemColor = Qt::white;
     myTextColor = Qt::black;
     myLineColor = Qt::black;
@@ -30,10 +29,6 @@ void VoteScene::setLineColor(const QColor &color)
 void VoteScene::setTextColor(const QColor &color)
 {
     myTextColor = color;
-    if (isItemChange(VoteTextItem::Type)) {
-        VoteTextItem *item = qgraphicsitem_cast<VoteTextItem *>(selectedItems().first());
-        item->setDefaultTextColor(myTextColor);
-    }
 }
 //! [2]
 
@@ -52,13 +47,6 @@ void VoteScene::setItemColor(const QColor &color)
 void VoteScene::setFont(const QFont &font)
 {
     myFont = font;
-
-    if (isItemChange(VoteTextItem::Type)) {
-        QGraphicsTextItem *item = qgraphicsitem_cast<VoteTextItem *>(selectedItems().first());
-        //At this point the selection can change so the first selected item might not be a VoteTextItem
-        if (item)
-            item->setFont(myFont);
-    }
 }
 //! [4]
 
@@ -72,35 +60,15 @@ void VoteScene::setItemType(VoteGraphicItem::DiagramType type)
     myItemType = type;
 }
 
-//! [5]
-void VoteScene::editorLostFocus(VoteTextItem *item)
-{
-    QTextCursor cursor = item->textCursor();
-    cursor.clearSelection();
-    item->setTextCursor(cursor);
-
-    if (item->toPlainText().isEmpty()) {
-        removeItem(item);
-        item->deleteLater();
-    }
-}
-//! [5]
-
 //! [6]
 void VoteScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     if (mouseEvent->button() != Qt::LeftButton)
         return;
-    const QList<QGraphicsItem *> items = selectedItems();
-    myMode = items.isEmpty() ? InsertItem : MoveItem;
+    myMode = selectedItems().isEmpty() ? InsertItem : MoveItem;
 
-    VoteGraphicItem *item;
     switch (myMode) {
         case InsertItem:
-//            item = new VoteGraphicItem(myItemType);
-//            item->setBrush(myItemColor);
-//            addItem(item);
-//            item->setPos(mouseEvent->scenePos());
             emit itemInserted(mouseEvent->scenePos());
             break;
 //! [6] //! [9]

@@ -14,7 +14,11 @@ public:
     void setQuestion(const QString &v);
     void setOuvertureDate(const QDateTime &newOuvertureDate);
 
+    size_t id() const;
+    void setId(size_t newId);
+
 private:
+    size_t _id;
     QString _question;
     QVariant _resultat;
     QDateTime _ouvertureDate;

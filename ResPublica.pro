@@ -14,16 +14,14 @@ SOURCES += \
     mainrespublica.cpp \
     vote.cpp \
     voteGraphicItem.cpp \
-    voteScene.cpp \
-    voteTextItem.cpp
+    voteScene.cpp
 
 HEADERS += \
     VoteScene.h \
     dlgeditvote.h \
     mainrespublica.h \
     vote.h \
-    voteGraphicItem.h \
-    voteTextItem.h
+    voteGraphicItem.h
 
 FORMS += \
     dlgeditvote.ui \

@@ -22,6 +22,16 @@ void Vote::setOuvertureDate(const QDateTime &newOuvertureDate)
     _ouvertureDate = newOuvertureDate;
 }
 
+size_t Vote::id() const
+{
+    return _id;
+}
+
+void Vote::setId(size_t newId)
+{
+    _id = newId;
+}
+
 QTextStream &operator <<(QTextStream & out, const shared_ptr<Vote> v)
 {
     out << v->question();
