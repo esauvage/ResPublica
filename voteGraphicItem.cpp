@@ -2,14 +2,14 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneContextMenuEvent>
-#include <QMenu>
 #include <QPainter>
 
-//#include "voteTextItem.h"
+#include "vote.h"
+#include "dlgeditvote.h"
 
 //! [0]
-VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, const QString &text, QGraphicsItem *parent)
-    : QGraphicsPolygonItem(parent), myDiagramType(diagramType)
+VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, std::shared_ptr<Vote> vote, QGraphicsItem *parent)
+    : QGraphicsPolygonItem(parent), myDiagramType(diagramType), _vote(vote)
 {
     QPainterPath path;
     switch (myDiagramType) {
@@ -44,7 +44,7 @@ VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, const QString &text, Q
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     auto textItem = new QGraphicsTextItem(this);
     textItem->setZValue(1000.0);
-    textItem->setPlainText(text);
+    textItem->setPlainText(vote->question());
 //    connect(textItem, &VoteTextItem::lostFocus,
 //            this, &VoteScene::editorLostFocus);
 //    connect(textItem, &VoteTextItem::selectedChange,
@@ -80,3 +80,13 @@ QVariant VoteGraphicItem::itemChange(GraphicsItemChange change, const QVariant &
     return value;
 }
 //! [6]
+
+void VoteGraphicItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    DlgEditVote edtVote(_vote);
+    if (!edtVote.exec())
+    {
+        return;
+    }
+    _textItem->setPlainText(_vote->question());
+}

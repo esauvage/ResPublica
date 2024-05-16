@@ -2,7 +2,10 @@
 
 using namespace std;
 
+size_t Vote::suivantId = 1;
+
 Vote::Vote()
+    :_id(0)
 {
 
 }
@@ -34,12 +37,17 @@ void Vote::setId(size_t newId)
 
 QTextStream &operator <<(QTextStream & out, const shared_ptr<Vote> v)
 {
+    v->setId(v->id() ? v->id() : Vote::suivantId++);
+    out << v->id();
     out << v->question();
     return out;
 }
 
 QTextStream &operator >>(QTextStream & in, const shared_ptr<Vote> v)
 {
+    size_t id;
+    in >> id;
+    v->setId(id);
     QString question;
     in >> question;
     v->setQuestion(question);

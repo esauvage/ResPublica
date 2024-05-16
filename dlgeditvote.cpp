@@ -11,6 +11,8 @@ DlgEditVote::DlgEditVote(shared_ptr<Vote> vote, QWidget *parent) :
     _vote(vote)
 {
     ui->setupUi(this);
+    ui->edtQuestion->setPlainText(_vote->question());
+//    ui->edtOuvertureDate->setDateTime(_vote->ouvertureDate());
 }
 
 DlgEditVote::~DlgEditVote()

@@ -16,6 +16,7 @@ public:
 
     size_t id() const;
     void setId(size_t newId);
+    static size_t suivantId;
 
 private:
     size_t _id;

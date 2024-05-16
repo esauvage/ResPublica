@@ -41,10 +41,13 @@ void MainResPublica::on_actionCr_er_triggered()
 void MainResPublica::itemInserted(QPointF pos)
 {
     auto nouveauVote = make_shared<Vote>();
-    _votes.push_back(nouveauVote);
     DlgEditVote dlg(nouveauVote, this);
-    dlg.exec();
-    auto voteItem = new VoteGraphicItem(VoteGraphicItem::Step, nouveauVote->question());
+    if (!dlg.exec())
+    {
+        return;
+    }
+    _votes.push_back(nouveauVote);
+    auto voteItem = new VoteGraphicItem(VoteGraphicItem::Step, nouveauVote);
     voteItem->setBrush(Qt::white);
     scene->addItem(voteItem);
     voteItem->setPos(pos);
@@ -72,6 +75,8 @@ void MainResPublica::on_actionOuvrir_triggered()
     if (!entree.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
+    _votes.clear();
+    scene->clear();
     QTextStream in(&entree);
     while (!in.atEnd())
     {
@@ -80,11 +85,11 @@ void MainResPublica::on_actionOuvrir_triggered()
         if (nouveauVote->question().isEmpty())
             break;
         _votes.push_back(nouveauVote);
-        auto item = new VoteGraphicItem(VoteGraphicItem::Step);
+        auto item = new VoteGraphicItem(VoteGraphicItem::Step, nouveauVote);
         item->setBrush(Qt::white);
         scene->addItem(item);
         item->setSelected(true);
-        item->setPos(100, 100);
+        item->setPos(100 * nouveauVote->id(), 100 * nouveauVote->id());
     }
 }
 

@@ -11,7 +11,7 @@ class QMenu;
 class QPolygonF;
 QT_END_NAMESPACE
 
-//class VoteTextItem;
+class Vote;
 
 //! [0]
 class VoteGraphicItem : public QGraphicsPolygonItem
@@ -20,7 +20,7 @@ public:
     enum { Type = UserType + 15 };
     enum DiagramType { Step, Conditional, StartEnd, Io };
 
-    VoteGraphicItem(DiagramType diagramType, const QString &text = "", QGraphicsItem *parent = nullptr);
+    VoteGraphicItem(DiagramType diagramType, std::shared_ptr<Vote> vote, QGraphicsItem *parent = nullptr);
 
     DiagramType diagramType() const { return myDiagramType; }
     QPolygonF polygon() const { return myPolygon; }
@@ -30,11 +30,13 @@ public:
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
     DiagramType myDiagramType;
     QPolygonF myPolygon;
     QGraphicsTextItem * _textItem;
+    std::shared_ptr<Vote> _vote;
 };
 //! [0]
 
