@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="lblQuestion">
      <property name="text">
-      <string>Question :*</string>
+      <string>Question :</string>
      </property>
     </widget>
    </item>

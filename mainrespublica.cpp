@@ -2,9 +2,15 @@
 #include "ui_mainrespublica.h"
 
 #include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 #include "dlgeditvote.h"
 #include "VoteScene.h"
+#include "voteliste.h"
+
+#include <QDebug>
 
 using namespace std;
 
@@ -32,7 +38,7 @@ MainResPublica::~MainResPublica()
 
 void MainResPublica::on_actionCr_er_triggered()
 {
-    auto nouveauVote = make_shared<Vote>();
+    auto nouveauVote = make_shared<VoteListe>();
     _votes.push_back(nouveauVote);
     DlgEditVote dlg(nouveauVote, this);
     dlg.exec();
@@ -40,7 +46,7 @@ void MainResPublica::on_actionCr_er_triggered()
 
 void MainResPublica::itemInserted(QPointF pos)
 {
-    auto nouveauVote = make_shared<Vote>();
+    auto nouveauVote = make_shared<VoteListe>();
     DlgEditVote dlg(nouveauVote, this);
     if (!dlg.exec())
     {
@@ -61,10 +67,17 @@ void MainResPublica::on_actionEnregistrer_triggered()
         return;
 
     QTextStream out(&sortie);
+    QJsonArray votes;
     for (const auto &v : _votes)
     {
-        out << v << "\n";
+        QJsonObject jobject;
+        jobject["id"] = QJsonValue::fromVariant(v->id());
+        jobject["Question"] = v->question();
+        jobject["Choix"] = QJsonValue::fromVariant(v->choix());
+        votes.append(jobject);
     }
+    QJsonDocument doc( votes );
+    out << doc.toJson() << "\n";
     sortie.close();
 }
 
@@ -77,13 +90,18 @@ void MainResPublica::on_actionOuvrir_triggered()
 
     _votes.clear();
     scene->clear();
-    QTextStream in(&entree);
-    while (!in.atEnd())
+    QByteArray saveData = entree.readAll();
+
+    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
+
+    const QJsonArray votes = loadDoc.array();
+    for (const QJsonValue &vote : votes)
     {
-        auto nouveauVote = make_shared<Vote>();
-        in >> nouveauVote;
-        if (nouveauVote->question().isEmpty())
-            break;
+        auto nouveauVote = make_shared<VoteListe>();
+        QJsonObject jobject = vote.toObject();
+        nouveauVote->setId(jobject["id"].toInteger());
+        nouveauVote->setQuestion(jobject["Question"].toString());
+        nouveauVote->setChoix(jobject["Choix"].toVariant());
         _votes.push_back(nouveauVote);
         auto item = new VoteGraphicItem(VoteGraphicItem::Step, nouveauVote);
         item->setBrush(Qt::white);
@@ -91,5 +109,20 @@ void MainResPublica::on_actionOuvrir_triggered()
         item->setSelected(true);
         item->setPos(100 * nouveauVote->id(), 100 * nouveauVote->id());
     }
+
+    // QTextStream in(&entree);
+    // while (!in.atEnd())
+    // {
+    //     auto nouveauVote = make_shared<VoteListe>();
+    //     in >> nouveauVote;
+    //     if (nouveauVote->question().isEmpty())
+    //         break;
+    //     _votes.push_back(nouveauVote);
+    //     auto item = new VoteGraphicItem(VoteGraphicItem::Step, nouveauVote);
+    //     item->setBrush(Qt::white);
+    //     scene->addItem(item);
+    //     item->setSelected(true);
+    //     item->setPos(100 * nouveauVote->id(), 100 * nouveauVote->id());
+    // }
 }
 

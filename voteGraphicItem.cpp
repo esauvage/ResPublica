@@ -88,5 +88,5 @@ void VoteGraphicItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     {
         return;
     }
-    _vote.setQuestion(_textItem->toPlainText());
+    _vote->setQuestion(_textItem->toPlainText());
 }

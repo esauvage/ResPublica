@@ -10,12 +10,16 @@ class Vote
 public:
     Vote();
 
+    virtual const std::type_info& typeChoix() = 0;
+    virtual QVariant choix() const = 0;
+    virtual void setChoix(QVariant c) = 0;
     const QString &question() const;
     void setQuestion(const QString &v);
     void setOuvertureDate(const QDateTime &newOuvertureDate);
 
     size_t id() const;
     void setId(size_t newId);
+
     static size_t suivantId;
 
 private:

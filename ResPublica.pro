@@ -12,16 +12,20 @@ SOURCES += \
     dlgeditvote.cpp \
     main.cpp \
     mainrespublica.cpp \
+    rplistwidget.cpp \
     vote.cpp \
     voteGraphicItem.cpp \
-    voteScene.cpp
+    voteScene.cpp \
+    voteliste.cpp
 
 HEADERS += \
     VoteScene.h \
     dlgeditvote.h \
     mainrespublica.h \
+    rplistwidget.h \
     vote.h \
-    voteGraphicItem.h
+    voteGraphicItem.h \
+    voteliste.h
 
 FORMS += \
     dlgeditvote.ui \
