@@ -31,12 +31,13 @@ protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
-
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 private:
     DiagramType myDiagramType;
     QPolygonF myPolygon;
     QGraphicsTextItem * _textItem;
     std::shared_ptr<Vote> _vote;
+    std::shared_ptr<QGraphicsRectItem> _button;
 };
 //! [0]
 

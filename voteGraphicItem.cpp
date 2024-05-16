@@ -4,9 +4,13 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <QPainter>
 
+#include <QDialog>
+
 #include "vote.h"
 #include "dlgeditvote.h"
+#include "dlglistevote.h"
 
+using namespace std;
 //! [0]
 VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, std::shared_ptr<Vote> vote, QGraphicsItem *parent)
     : QGraphicsPolygonItem(parent), myDiagramType(diagramType), _vote(vote)
@@ -42,6 +46,8 @@ VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, std::shared_ptr<Vote> 
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+    _button = make_shared<QGraphicsRectItem>(20, 20, 20, 20, this);
+    _button->setBrush(Qt::gray);
     auto textItem = new QGraphicsTextItem(this);
     textItem->setZValue(1000.0);
     textItem->setPlainText(vote->question());
@@ -89,4 +95,15 @@ void VoteGraphicItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
     _vote->setQuestion(_textItem->toPlainText());
+}
+
+void VoteGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (_button->rect().contains(event->pos()))
+    {
+        DlgListeVote dlg;
+        dlg.setPossibilites(_vote->choix().toStringList());
+        dlg.exec();
+    }
+    QGraphicsPolygonItem::mouseReleaseEvent(event);
 }

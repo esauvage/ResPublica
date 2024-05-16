@@ -10,6 +10,7 @@ CONFIG += c++11
 
 SOURCES += \
     dlgeditvote.cpp \
+    dlglistevote.cpp \
     main.cpp \
     mainrespublica.cpp \
     rplistwidget.cpp \
@@ -21,6 +22,7 @@ SOURCES += \
 HEADERS += \
     VoteScene.h \
     dlgeditvote.h \
+    dlglistevote.h \
     mainrespublica.h \
     rplistwidget.h \
     vote.h \
@@ -29,6 +31,7 @@ HEADERS += \
 
 FORMS += \
     dlgeditvote.ui \
+    dlglistevote.ui \
     mainrespublica.ui
 
 TRANSLATIONS += \
