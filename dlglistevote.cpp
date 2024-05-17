@@ -22,8 +22,9 @@ void DlgListeVote::on_btnSelect_clicked()
 {
     for (auto s : ui->lstPossibles->selectedItems())
     {
-        ui->lstSelectionnes->insertItem(0, s);
+        ui->lstSelectionnes->addItem(s->text());
         ui->lstPossibles->removeItemWidget(s);
+        delete s;
     }
 }
 
@@ -32,8 +33,9 @@ void DlgListeVote::on_btnDeselect_clicked()
 {
     for (auto s : ui->lstSelectionnes->selectedItems())
     {
-        ui->lstPossibles->insertItem(0, s);
+        ui->lstPossibles->addItem(s->text());
         ui->lstSelectionnes->removeItemWidget(s);
+        delete s;
     }
 }
 
