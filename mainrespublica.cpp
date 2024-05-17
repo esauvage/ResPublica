@@ -19,10 +19,10 @@ MainResPublica::MainResPublica(QWidget *parent)
     , ui(new Ui::MainResPublica)
 {
     ui->setupUi(this);
-    scene = new VoteScene(this);
-    scene->setSceneRect(QRectF(0, 0, 5000, 5000));
-    ui->mainView->setScene(scene);
-    connect(scene, &VoteScene::itemInserted, this, &MainResPublica::itemInserted);
+    _scene = new VoteScene(this);
+    _scene->setSceneRect(QRectF(0, 0, 5000, 5000));
+    ui->mainView->setScene(_scene);
+    connect(_scene, &VoteScene::itemInserted, this, &MainResPublica::itemInserted);
 //    connect(scene, &VoteScene::textInserted,
 //            this, &MainWindow::textInserted);
 //    connect(scene, &VoteScene::itemSelected,
@@ -32,37 +32,38 @@ MainResPublica::MainResPublica(QWidget *parent)
 MainResPublica::~MainResPublica()
 {
     delete ui;
-    delete scene;
+    delete _scene;
 }
 
 
 void MainResPublica::on_actionCr_er_triggered()
 {
-    auto nouveauVote = make_shared<VoteListe>();
-    _votes.push_back(nouveauVote);
-    DlgEditVote dlg(nouveauVote, this);
+    auto nouveauQuestion = make_shared<QuestionListe>();
+    _votes.push_back(nouveauQuestion);
+    DlgEditQuestion dlg(nouveauQuestion, this);
     dlg.exec();
 }
 
 void MainResPublica::itemInserted(QPointF pos)
 {
-    auto nouveauVote = make_shared<VoteListe>();
-    DlgEditVote dlg(nouveauVote, this);
+    auto nouveauQuestion = make_shared<QuestionListe>();
+    DlgEditQuestion dlg(nouveauQuestion, this);
     if (!dlg.exec())
     {
         return;
     }
-    _votes.push_back(nouveauVote);
-    auto voteItem = new VoteGraphicItem(VoteGraphicItem::Step, nouveauVote);
+    _votes.push_back(nouveauQuestion);
+    QuestionGraphicItem * voteItem = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion);
     voteItem->setBrush(Qt::white);
-    scene->addItem(voteItem);
+    _scene->addItem(voteItem);
     voteItem->setPos(pos);
+    connect(voteItem, &QuestionGraphicItem::AVote, this, &MainResPublica::on_AVote);
 }
 
 
 void MainResPublica::on_actionEnregistrer_triggered()
 {
-    QFile sortie("Votes.txt");
+    QFile sortie("Questions.txt");
     if (!sortie.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
@@ -84,12 +85,12 @@ void MainResPublica::on_actionEnregistrer_triggered()
 
 void MainResPublica::on_actionOuvrir_triggered()
 {
-    QFile entree("Votes.txt");
+    QFile entree("Questions.txt");
     if (!entree.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
     _votes.clear();
-    scene->clear();
+    _scene->clear();
     QByteArray saveData = entree.readAll();
 
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
@@ -97,32 +98,37 @@ void MainResPublica::on_actionOuvrir_triggered()
     const QJsonArray votes = loadDoc.array();
     for (const QJsonValue &vote : votes)
     {
-        auto nouveauVote = make_shared<VoteListe>();
+        auto nouveauQuestion = make_shared<QuestionListe>();
         QJsonObject jobject = vote.toObject();
-        nouveauVote->setId(jobject["id"].toInteger());
-        nouveauVote->setQuestion(jobject["Question"].toString());
-        nouveauVote->setChoix(jobject["Choix"].toVariant());
-        _votes.push_back(nouveauVote);
-        auto item = new VoteGraphicItem(VoteGraphicItem::Step, nouveauVote);
+        nouveauQuestion->setId(jobject["id"].toInteger());
+        nouveauQuestion->setQuestion(jobject["Question"].toString());
+        nouveauQuestion->setChoix(jobject["Choix"].toVariant());
+        _votes.push_back(nouveauQuestion);
+        auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion);
         item->setBrush(Qt::white);
-        scene->addItem(item);
+        _scene->addItem(item);
         item->setSelected(true);
-        item->setPos(100 * nouveauVote->id(), 100 * nouveauVote->id());
+        item->setPos(100 * nouveauQuestion->id(), 100 * nouveauQuestion->id());
     }
 
     // QTextStream in(&entree);
     // while (!in.atEnd())
     // {
-    //     auto nouveauVote = make_shared<VoteListe>();
-    //     in >> nouveauVote;
-    //     if (nouveauVote->question().isEmpty())
+    //     auto nouveauQuestion = make_shared<QuestionListe>();
+    //     in >> nouveauQuestion;
+    //     if (nouveauQuestion->question().isEmpty())
     //         break;
-    //     _votes.push_back(nouveauVote);
-    //     auto item = new VoteGraphicItem(VoteGraphicItem::Step, nouveauVote);
+    //     _votes.push_back(nouveauQuestion);
+    //     auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion);
     //     item->setBrush(Qt::white);
     //     scene->addItem(item);
     //     item->setSelected(true);
-    //     item->setPos(100 * nouveauVote->id(), 100 * nouveauVote->id());
+    //     item->setPos(100 * nouveauQuestion->id(), 100 * nouveauQuestion->id());
     // }
+}
+
+void MainResPublica::on_AVote(std::shared_ptr<Question> question, QVariant choix)
+{
+
 }
 

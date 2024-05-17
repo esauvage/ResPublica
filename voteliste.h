@@ -3,12 +3,12 @@
 
 #include <QString>
 
-#include "vote.h"
+#include "question.h"
 
-class VoteListe : public Vote
+class QuestionListe : public Question
 {
 public:
-    VoteListe();
+    QuestionListe();
     const std::type_info& typeChoix();
     QVariant choix() const;
     void setChoix(QVariant c);

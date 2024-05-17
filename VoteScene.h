@@ -24,7 +24,7 @@ public:
 
 public slots:
     void setMode(Mode mode);
-    void setItemType(VoteGraphicItem::DiagramType type);
+    void setItemType(QuestionGraphicItem::DiagramType type);
 
 signals:
     void itemInserted(QPointF pos);
@@ -39,7 +39,7 @@ protected:
 private:
     bool isItemChange(int type) const;
 
-    VoteGraphicItem::DiagramType myItemType;
+    QuestionGraphicItem::DiagramType myItemType;
     Mode myMode;
     bool leftButtonDown;
     QPointF startPoint;

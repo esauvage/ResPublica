@@ -3,26 +3,26 @@
 
 #include <QDialog>
 
-class Vote;
+class Question;
 
 namespace Ui {
-class DlgEditVote;
+class DlgEditQuestion;
 }
 
-class DlgEditVote : public QDialog
+class DlgEditQuestion : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DlgEditVote(std::shared_ptr<Vote> vote, QWidget *parent = nullptr);
-    ~DlgEditVote();
+    explicit DlgEditQuestion(std::shared_ptr<Question> vote, QWidget *parent = nullptr);
+    ~DlgEditQuestion();
 
 private slots:
     void on_buttonBox_accepted();
 
 private:
-    Ui::DlgEditVote *ui;
-    std::shared_ptr<Vote> _vote;
+    Ui::DlgEditQuestion *ui;
+    std::shared_ptr<Question> _vote;
 };
 
 #endif // DLGEDITVOTE_H

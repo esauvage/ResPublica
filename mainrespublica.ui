@@ -29,9 +29,9 @@
      <height>17</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuVotes">
+   <widget class="QMenu" name="menuQuestions">
     <property name="title">
-     <string>Votes</string>
+     <string>Questions</string>
     </property>
     <addaction name="actionCr_er"/>
    </widget>
@@ -43,7 +43,7 @@
     <addaction name="actionEnregistrer"/>
    </widget>
    <addaction name="menuFichier"/>
-   <addaction name="menuVotes"/>
+   <addaction name="menuQuestions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionCr_er">

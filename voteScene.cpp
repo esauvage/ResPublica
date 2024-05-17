@@ -10,7 +10,7 @@ VoteScene::VoteScene(QObject *parent)
 {
 //    myMode = MoveItem;
     myMode = InsertItem;
-    myItemType = VoteGraphicItem::Step;
+    myItemType = QuestionGraphicItem::Step;
     line = nullptr;
     myItemColor = Qt::white;
     myTextColor = Qt::black;
@@ -36,8 +36,8 @@ void VoteScene::setTextColor(const QColor &color)
 void VoteScene::setItemColor(const QColor &color)
 {
     myItemColor = color;
-    if (isItemChange(VoteGraphicItem::Type)) {
-        VoteGraphicItem *item = qgraphicsitem_cast<VoteGraphicItem *>(selectedItems().first());
+    if (isItemChange(QuestionGraphicItem::Type)) {
+        QuestionGraphicItem *item = qgraphicsitem_cast<QuestionGraphicItem *>(selectedItems().first());
         item->setBrush(myItemColor);
     }
 }
@@ -55,7 +55,7 @@ void VoteScene::setMode(Mode mode)
     myMode = mode;
 }
 
-void VoteScene::setItemType(VoteGraphicItem::DiagramType type)
+void VoteScene::setItemType(QuestionGraphicItem::DiagramType type)
 {
     myItemType = type;
 }

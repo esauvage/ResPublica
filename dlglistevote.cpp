@@ -1,24 +1,34 @@
 #include "dlglistevote.h"
 #include "ui_dlglistevote.h"
 
-DlgListeVote::DlgListeVote(QWidget *parent)
+DlgListeQuestion::DlgListeQuestion(QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::DlgListeVote)
+    , ui(new Ui::DlgListeQuestion)
 {
     ui->setupUi(this);
 }
 
-DlgListeVote::~DlgListeVote()
+DlgListeQuestion::~DlgListeQuestion()
 {
     delete ui;
 }
 
-void DlgListeVote::setPossibilites(const QStringList &v)
+void DlgListeQuestion::setPossibilites(const QStringList &v)
 {
     ui->lstPossibles->addItems(v);
 }
 
-void DlgListeVote::on_btnSelect_clicked()
+QStringList DlgListeQuestion::selection() const
+{
+    QStringList r;
+    for (auto s : ui->lstSelectionnes->findItems("", Qt::MatchContains))
+    {
+        r << s->text();
+    }
+    return r;
+}
+
+void DlgListeQuestion::on_btnSelect_clicked()
 {
     for (auto s : ui->lstPossibles->selectedItems())
     {
@@ -29,7 +39,7 @@ void DlgListeVote::on_btnSelect_clicked()
 }
 
 
-void DlgListeVote::on_btnDeselect_clicked()
+void DlgListeQuestion::on_btnDeselect_clicked()
 {
     for (auto s : ui->lstSelectionnes->selectedItems())
     {

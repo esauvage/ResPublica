@@ -4,18 +4,19 @@
 #include <QDialog>
 
 namespace Ui {
-class DlgListeVote;
+class DlgListeQuestion;
 }
 
-class DlgListeVote : public QDialog
+class DlgListeQuestion : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DlgListeVote(QWidget *parent = nullptr);
-    ~DlgListeVote();
+    explicit DlgListeQuestion(QWidget *parent = nullptr);
+    ~DlgListeQuestion();
 
     void setPossibilites(const QStringList &v);
+    QStringList selection() const;
 
 private slots:
     void on_btnSelect_clicked();
@@ -23,7 +24,7 @@ private slots:
     void on_btnDeselect_clicked();
 
 private:
-    Ui::DlgListeVote *ui;
+    Ui::DlgListeQuestion *ui;
 };
 
 #endif // DLGLISTEVOTE_H

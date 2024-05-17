@@ -3,10 +3,11 @@
 
 #include <QMainWindow>
 
-#include "vote.h"
+#include "question.h"
+#include "personne.h"
 
 class VoteScene;
-class VoteGraphicItem;
+class QuestionGraphicItem;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainResPublica; }
@@ -23,14 +24,14 @@ public:
 private slots:
     void on_actionCr_er_triggered();
     void itemInserted(QPointF pos);
-
     void on_actionEnregistrer_triggered();
-
     void on_actionOuvrir_triggered();
+    void on_AVote(std::shared_ptr<Question> question, QVariant choix);
 
 private:
     Ui::MainResPublica *ui;
-    std::list<std::shared_ptr<Vote> > _votes;
-    VoteScene * scene;
+    std::list<std::shared_ptr<Question> > _votes;
+    VoteScene * _scene;
+    Personne _personne;
 };
 #endif // MAINRESPUBLICA_H

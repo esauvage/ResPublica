@@ -6,14 +6,14 @@
 
 #include <QDialog>
 
-#include "vote.h"
+#include "question.h"
 #include "dlgeditvote.h"
 #include "dlglistevote.h"
 
 using namespace std;
 //! [0]
-VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, std::shared_ptr<Vote> vote, QGraphicsItem *parent)
-    : QGraphicsPolygonItem(parent), myDiagramType(diagramType), _vote(vote)
+QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_ptr<Question> vote, QGraphicsItem *parent, QObject *objParent)
+    : QObject(objParent), QGraphicsPolygonItem(parent), myDiagramType(diagramType), _vote(vote)
 {
     QPainterPath path;
     switch (myDiagramType) {
@@ -51,15 +51,15 @@ VoteGraphicItem::VoteGraphicItem(DiagramType diagramType, std::shared_ptr<Vote> 
     auto textItem = new QGraphicsTextItem(this);
     textItem->setZValue(1000.0);
     textItem->setPlainText(vote->question());
-//    connect(textItem, &VoteTextItem::lostFocus,
+//    connect(textItem, &QuestionTextItem::lostFocus,
 //            this, &VoteScene::editorLostFocus);
-//    connect(textItem, &VoteTextItem::selectedChange,
+//    connect(textItem, &QuestionTextItem::selectedChange,
 //            this, &VoteScene::itemSelected);
 }
 //! [0]
 
 //! [4]
-QPixmap VoteGraphicItem::image() const
+QPixmap QuestionGraphicItem::image() const
 {
     QPixmap pixmap(250, 250);
     pixmap.fill(Qt::transparent);
@@ -73,7 +73,7 @@ QPixmap VoteGraphicItem::image() const
 //! [4]
 
 //! [5]
-void VoteGraphicItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+void QuestionGraphicItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
     scene()->clearSelection();
     setSelected(true);
@@ -81,29 +81,32 @@ void VoteGraphicItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 //! [5]
 
 //! [6]
-QVariant VoteGraphicItem::itemChange(GraphicsItemChange change, const QVariant &value)
+QVariant QuestionGraphicItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     return value;
 }
 //! [6]
 
-void VoteGraphicItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+void QuestionGraphicItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    DlgEditVote edtVote(_vote);
-    if (!edtVote.exec())
+    DlgEditQuestion edtQuestion(_vote);
+    if (!edtQuestion.exec())
     {
         return;
     }
     _vote->setQuestion(_textItem->toPlainText());
 }
 
-void VoteGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (_button->rect().contains(event->pos()))
     {
-        DlgListeVote dlg;
+        DlgListeQuestion dlg;
         dlg.setPossibilites(_vote->choix().toStringList());
-        dlg.exec();
+        if (dlg.exec())
+        {
+            emit AVote(_vote, dlg.selection());
+        }
     }
     QGraphicsPolygonItem::mouseReleaseEvent(event);
 }

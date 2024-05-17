@@ -2,19 +2,19 @@
 
 using namespace std;
 
-VoteListe::VoteListe() {}
+QuestionListe::QuestionListe() {}
 
- const std::type_info& VoteListe::typeChoix()
+ const std::type_info& QuestionListe::typeChoix()
 {
     return typeid(_choix);
 }
 
-QVariant VoteListe::choix() const
+QVariant QuestionListe::choix() const
 {
     return _choix;
 }
 
-void VoteListe::setChoix(QVariant newChoix)
+void QuestionListe::setChoix(QVariant newChoix)
 {
     _choix = newChoix.toStringList();
 }

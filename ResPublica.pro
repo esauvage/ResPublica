@@ -13,6 +13,8 @@ SOURCES += \
     dlglistevote.cpp \
     main.cpp \
     mainrespublica.cpp \
+    personne.cpp \
+    question.cpp \
     rplistwidget.cpp \
     vote.cpp \
     voteGraphicItem.cpp \
@@ -21,9 +23,12 @@ SOURCES += \
 
 HEADERS += \
     VoteScene.h \
+    VoteScene.h \
     dlgeditvote.h \
     dlglistevote.h \
     mainrespublica.h \
+    personne.h \
+    question.h \
     rplistwidget.h \
     vote.h \
     voteGraphicItem.h \
