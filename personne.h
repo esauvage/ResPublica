@@ -1,17 +1,19 @@
 #ifndef PERSONNE_H
 #define PERSONNE_H
 
-#include <list>
+#include <QVariant>
 
-#include "vote.h"
+class Question;
 
 class Personne
 {
 public:
     Personne();
-    void addVote(const Vote &vote);
+    void addVote(std::shared_ptr<Question> question, QVariant choix);
+    std::map<std::shared_ptr<Question>, QVariant> votes() const;
+
 private:
-    std::list<Vote> _votes;
+    std::map<std::shared_ptr<Question>, QVariant> _votes;
 };
 
 #endif // PERSONNE_H

@@ -63,21 +63,34 @@ void MainResPublica::itemInserted(QPointF pos)
 
 void MainResPublica::on_actionEnregistrer_triggered()
 {
-    QFile sortie("Questions.txt");
+    QFile sortie("Votes.txt");
     if (!sortie.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
     QTextStream out(&sortie);
-    QJsonArray votes;
+    QJsonArray questions;
     for (const auto &v : _votes)
     {
         QJsonObject jobject;
         jobject["id"] = QJsonValue::fromVariant(v->id());
         jobject["Question"] = v->question();
         jobject["Choix"] = QJsonValue::fromVariant(v->choix());
+        questions.append(jobject);
+    }
+    QJsonObject corpus;
+    corpus["questions"] = questions;
+    QJsonArray votes;
+    for (const auto &v : _personne.votes())
+    {
+        QJsonObject jobject;
+        jobject["Question"] = v.first->question();
+        jobject["Choix"] = QJsonValue::fromVariant(v.second);
         votes.append(jobject);
     }
-    QJsonDocument doc( votes );
+    QJsonObject personne;
+    personne["Votes"] = votes;
+    corpus["personne"] = personne;
+    QJsonDocument doc( corpus );
     out << doc.toJson() << "\n";
     sortie.close();
 }
@@ -85,7 +98,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
 
 void MainResPublica::on_actionOuvrir_triggered()
 {
-    QFile entree("Questions.txt");
+    QFile entree("Votes.txt");
     if (!entree.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
@@ -129,6 +142,6 @@ void MainResPublica::on_actionOuvrir_triggered()
 
 void MainResPublica::on_AVote(std::shared_ptr<Question> question, QVariant choix)
 {
-
+    _personne.addVote(question, choix);
 }
 
