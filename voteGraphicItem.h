@@ -12,6 +12,7 @@ class QPolygonF;
 QT_END_NAMESPACE
 
 class Question;
+class Personne;
 
 //! [0]
 class QuestionGraphicItem : public QObject, public QGraphicsPolygonItem
@@ -21,7 +22,9 @@ public:
     enum { Type = UserType + 15 };
     enum DiagramType { Step, Conditional, StartEnd, Io };
 
-    QuestionGraphicItem(DiagramType diagramType, std::shared_ptr<Question> vote, QGraphicsItem *parent = nullptr, QObject *objParent = nullptr);
+    QuestionGraphicItem(DiagramType diagramType, std::shared_ptr<Question> vote,
+                        const Personne & personne,
+                        QGraphicsItem *parent = nullptr, QObject *objParent = nullptr);
 
     DiagramType diagramType() const { return myDiagramType; }
     QPolygonF polygon() const { return myPolygon; }
@@ -38,8 +41,9 @@ private:
     DiagramType myDiagramType;
     QPolygonF myPolygon;
     QGraphicsTextItem * _textItem;
-    std::shared_ptr<Question> _vote;
     std::shared_ptr<QGraphicsRectItem> _button;
+    std::shared_ptr<Question> _vote;
+    const Personne &_personne;
 };
 //! [0]
 

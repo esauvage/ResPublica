@@ -18,6 +18,20 @@ void DlgListeQuestion::setPossibilites(const QStringList &v)
     ui->lstPossibles->addItems(v);
 }
 
+void DlgListeQuestion::setSelection(const QStringList &v)
+{
+    for (const auto &s : v)
+    {
+        ui->lstSelectionnes->addItem(s);
+        const auto widgets = ui->lstPossibles->findItems(s, Qt::MatchExactly);
+        for (const auto & w : widgets)
+        {
+            ui->lstPossibles->removeItemWidget(w);
+            delete w;
+        }
+    }
+}
+
 QStringList DlgListeQuestion::selection() const
 {
     QStringList r;
@@ -38,7 +52,6 @@ void DlgListeQuestion::on_btnSelect_clicked()
     }
 }
 
-
 void DlgListeQuestion::on_btnDeselect_clicked()
 {
     for (auto s : ui->lstSelectionnes->selectedItems())
@@ -48,4 +61,3 @@ void DlgListeQuestion::on_btnDeselect_clicked()
         delete s;
     }
 }
-

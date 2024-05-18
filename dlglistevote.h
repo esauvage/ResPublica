@@ -16,11 +16,11 @@ public:
     ~DlgListeQuestion();
 
     void setPossibilites(const QStringList &v);
+    void setSelection(const QStringList &v);
     QStringList selection() const;
 
 private slots:
     void on_btnSelect_clicked();
-
     void on_btnDeselect_clicked();
 
 private:

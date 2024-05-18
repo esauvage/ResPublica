@@ -7,13 +7,16 @@
 #include <QDialog>
 
 #include "question.h"
+#include "personne.h"
 #include "dlgeditvote.h"
 #include "dlglistevote.h"
 
 using namespace std;
 //! [0]
-QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_ptr<Question> vote, QGraphicsItem *parent, QObject *objParent)
-    : QObject(objParent), QGraphicsPolygonItem(parent), myDiagramType(diagramType), _vote(vote)
+QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_ptr<Question> vote,
+                                         const Personne & personne,
+                                         QGraphicsItem *parent, QObject *objParent)
+    : QObject(objParent), QGraphicsPolygonItem(parent), myDiagramType(diagramType), _vote(vote), _personne(personne)
 {
     QPainterPath path;
     switch (myDiagramType) {
@@ -51,10 +54,6 @@ QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_pt
     auto textItem = new QGraphicsTextItem(this);
     textItem->setZValue(1000.0);
     textItem->setPlainText(vote->question());
-//    connect(textItem, &QuestionTextItem::lostFocus,
-//            this, &VoteScene::editorLostFocus);
-//    connect(textItem, &QuestionTextItem::selectedChange,
-//            this, &VoteScene::itemSelected);
 }
 //! [0]
 
@@ -103,6 +102,7 @@ void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         DlgListeQuestion dlg;
         dlg.setPossibilites(_vote->choix().toStringList());
+        dlg.setSelection(_personne.votes()[_vote].toStringList());
         if (dlg.exec())
         {
             emit AVote(_vote, dlg.selection());

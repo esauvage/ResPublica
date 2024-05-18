@@ -53,7 +53,7 @@ void MainResPublica::itemInserted(QPointF pos)
         return;
     }
     _votes.push_back(nouveauQuestion);
-    QuestionGraphicItem * voteItem = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion);
+    QuestionGraphicItem * voteItem = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion, _personne);
     voteItem->setBrush(Qt::white);
     _scene->addItem(voteItem);
     voteItem->setPos(pos);
@@ -107,37 +107,36 @@ void MainResPublica::on_actionOuvrir_triggered()
     QByteArray saveData = entree.readAll();
 
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
-
-    const QJsonArray votes = loadDoc.array();
-    for (const QJsonValue &vote : votes)
+    const QJsonObject corpus = loadDoc.object();
+    const QJsonArray questions = corpus["questions"].toArray();
+    for (const QJsonValue &q : questions)
     {
         auto nouveauQuestion = make_shared<QuestionListe>();
-        QJsonObject jobject = vote.toObject();
+        QJsonObject jobject = q.toObject();
         nouveauQuestion->setId(jobject["id"].toInteger());
         nouveauQuestion->setQuestion(jobject["Question"].toString());
         nouveauQuestion->setChoix(jobject["Choix"].toVariant());
         _votes.push_back(nouveauQuestion);
-        auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion);
+        auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion, _personne);
         item->setBrush(Qt::white);
         _scene->addItem(item);
         item->setSelected(true);
         item->setPos(100 * nouveauQuestion->id(), 100 * nouveauQuestion->id());
     }
-
-    // QTextStream in(&entree);
-    // while (!in.atEnd())
-    // {
-    //     auto nouveauQuestion = make_shared<QuestionListe>();
-    //     in >> nouveauQuestion;
-    //     if (nouveauQuestion->question().isEmpty())
-    //         break;
-    //     _votes.push_back(nouveauQuestion);
-    //     auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion);
-    //     item->setBrush(Qt::white);
-    //     scene->addItem(item);
-    //     item->setSelected(true);
-    //     item->setPos(100 * nouveauQuestion->id(), 100 * nouveauQuestion->id());
-    // }
+    const QJsonObject personne = corpus["personne"].toObject();
+    const QJsonArray votes = personne["Votes"].toArray();
+    for (const auto &v : votes)
+    {
+        QJsonObject jobject = v.toObject();
+        for (shared_ptr<Question> q : _votes)
+        {
+            if (q->question() != jobject["Question"].toString())
+            {
+                continue;
+            }
+            _personne.addVote(q, jobject["Choix"].toVariant());
+        }
+    }
 }
 
 void MainResPublica::on_AVote(std::shared_ptr<Question> question, QVariant choix)
