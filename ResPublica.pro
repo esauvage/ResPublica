@@ -15,11 +15,11 @@ SOURCES += \
     mainrespublica.cpp \
     personne.cpp \
     question.cpp \
+    questionliste.cpp \
     rplistwidget.cpp \
     vote.cpp \
     voteGraphicItem.cpp \
-    voteScene.cpp \
-    voteliste.cpp
+    voteScene.cpp
 
 HEADERS += \
     VoteScene.h \
@@ -29,10 +29,10 @@ HEADERS += \
     mainrespublica.h \
     personne.h \
     question.h \
+    questionliste.h \
     rplistwidget.h \
     vote.h \
-    voteGraphicItem.h \
-    voteliste.h
+    voteGraphicItem.h
 
 FORMS += \
     dlgeditvote.ui \

@@ -102,9 +102,10 @@ void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         DlgListeQuestion dlg;
         dlg.setPossibilites(_vote->choix().toStringList());
-        dlg.setSelection(_personne.votes()[_vote].toStringList());
+        dlg.setSelection(_personne.votes()[_vote].choix().toStringList());
         if (dlg.exec())
         {
+            setBrush(Qt::white);
             emit AVote(_vote, dlg.selection());
         }
     }

@@ -22,7 +22,7 @@ private slots:
 
 private:
     Ui::DlgEditQuestion *ui;
-    std::shared_ptr<Question> _vote;
+    std::shared_ptr<Question> _question;
 };
 
 #endif // DLGEDITVOTE_H

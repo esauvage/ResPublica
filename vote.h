@@ -1,16 +1,22 @@
 #ifndef VOTE_H
 #define VOTE_H
 
-#include "question.h"
+#include <QVariant>
 
 class Vote
 {
 public:
-    Vote();
-    void setQuestion(const std::shared_ptr<Question> &newQuestion);
+    Vote(QVariant choix = QVariant(), bool aVerifier = false);
+
+    QVariant choix() const;
+    void setChoix(const QVariant &newChoix);
+
+    bool aConfirmer() const;
+    void setAConfirmer(bool newAConfirmer);
 
 private:
-    std::shared_ptr<Question> _question;
+    QVariant _choix;
+    bool _aConfirmer;
 };
 
 #endif // VOTE_H

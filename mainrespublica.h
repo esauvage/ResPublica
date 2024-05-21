@@ -30,7 +30,7 @@ private slots:
 
 private:
     Ui::MainResPublica *ui;
-    std::list<std::shared_ptr<Question> > _votes;
+    std::list<std::shared_ptr<Question> > _questions;
     VoteScene * _scene;
     Personne _personne;
 };

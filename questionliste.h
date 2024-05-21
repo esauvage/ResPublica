@@ -1,0 +1,21 @@
+#ifndef QUESTIONLISTE_H
+#define QUESTIONLISTE_H
+
+#include <QString>
+
+#include "question.h"
+
+class QuestionListe : public Question
+{
+public:
+    QuestionListe();
+    const std::type_info& typeChoix() override;
+    QVariant choix() const override;
+    void setChoix(QVariant c) override;
+
+    virtual QByteArray checksum() const override;
+private:
+    QStringList _choix;
+};
+
+#endif // QUESTIONLISTE_H

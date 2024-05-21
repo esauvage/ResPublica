@@ -1,6 +1,7 @@
 #include "question.h"
 
 #include <QJsonDocument>
+#include <QCryptographicHash>
 
 using namespace std;
 
@@ -37,7 +38,6 @@ void Question::setId(size_t newId)
 {
     _id = newId;
 }
-
 
 QTextStream &operator <<(QTextStream & out, const shared_ptr<Question> v)
 {
