@@ -6,9 +6,12 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include <QMessageBox>
+
 #include "dlgeditvote.h"
 #include "VoteScene.h"
 #include "questionliste.h"
+#include "dlgconnexion.h"
 
 #include <QDebug>
 
@@ -53,7 +56,7 @@ void MainResPublica::itemInserted(QPointF pos)
         return;
     }
     _questions.push_back(nouveauQuestion);
-    QuestionGraphicItem * voteItem = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion, _personne);
+    QuestionGraphicItem * voteItem = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion, _electeurCour);
     voteItem->setBrush(Qt::white);
     _scene->addItem(voteItem);
     voteItem->setPos(pos);
@@ -69,7 +72,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
 
     QTextStream out(&sortie);
     QJsonArray questions;
-    for (auto &v : _questions)
+    for (const auto &v : _questions)
     {
         QJsonObject jobject;
         jobject["id"] = QJsonValue::fromVariant(v->id());
@@ -79,18 +82,29 @@ void MainResPublica::on_actionEnregistrer_triggered()
     }
     QJsonObject corpus;
     corpus["questions"] = questions;
-    QJsonArray votes;
-    for (const auto &v : _personne.votes())
+    QJsonArray electeurs;
+    for (const auto & p : _personnes)
     {
-        QJsonObject jobject;
-        jobject["Question"] = v.first->question();
-        jobject["QuestionChecksum"] = QJsonValue::fromVariant(QString(v.first->checksum().toBase64()));
-        jobject["Choix"] = QJsonValue::fromVariant(v.second.choix());
-        votes.append(jobject);
+        QJsonArray votes;
+        for (const auto &v : p->votes())
+        {
+            QJsonObject jobject;
+            //Test d'absence de problème sur les votes
+            if (v.second.aConfirmer())
+            {
+                QMessageBox::information(this, "Attention", "Il vous reste des votes à confirmer");
+            }
+            jobject["Question"] = v.first->question();
+            jobject["QuestionChecksum"] = QJsonValue::fromVariant(QString(v.first->checksum().toBase64()));
+            jobject["Choix"] = QJsonValue::fromVariant(v.second.choix());
+            votes.append(jobject);
+        }
+        QJsonObject personne;
+        personne["Votes"] = votes;
+        personne["Pseudo"] = p->pseudonyme();
+        electeurs.append(personne);
     }
-    QJsonObject personne;
-    personne["Votes"] = votes;
-    corpus["personne"] = personne;
+    corpus["electeurs"] = electeurs;
     QJsonDocument doc( corpus );
     out << doc.toJson() << "\n";
     sortie.close();
@@ -119,33 +133,63 @@ void MainResPublica::on_actionOuvrir_triggered()
         nouveauQuestion->setQuestion(jobject["Question"].toString());
         nouveauQuestion->setChoix(jobject["Choix"].toVariant());
         _questions.push_back(nouveauQuestion);
-        auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion, _personne);
+        auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion, _electeurCour);
         itemsQuestions.insert(QPair<shared_ptr<Question>, QuestionGraphicItem *>(nouveauQuestion, item));
         item->setBrush(Qt::white);
         _scene->addItem(item);
         item->setSelected(true);
         item->setPos(100 * nouveauQuestion->id(), 100 * nouveauQuestion->id());
     }
-    const QJsonObject personne = corpus["personne"].toObject();
-    const QJsonArray votes = personne["Votes"].toArray();
-    for (const auto &v : votes)
+    const QJsonArray electeurs = corpus["electeurs"].toArray();
+    for (const QJsonValue &e : electeurs)
     {
-        QJsonObject jobject = v.toObject();
-        for (shared_ptr<Question> q : _questions)
+        auto nouvelElecteur = make_shared<Personne>();
+        const QJsonObject personne = e.toObject();
+        nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
+        _personnes.push_back(nouvelElecteur);
+        const QJsonArray votes = personne["Votes"].toArray();
+        for (const auto &v : votes)
         {
-            if (q->question() != jobject["Question"].toString())
+            QJsonObject jobject = v.toObject();
+            for (const shared_ptr<Question> &q : _questions)
             {
-                continue;
+                if (q->question() != jobject["Question"].toString())
+                {
+                    continue;
+                }
+                bool aVerifier = QString(q->checksum().toBase64()) != jobject["QuestionChecksum"].toString();
+                nouvelElecteur->addVote(q, jobject["Choix"].toVariant(), aVerifier);
+                itemsQuestions[q]->setBrush(aVerifier ? Qt::red : Qt::white);
             }
-            bool aVerifier = QString(q->checksum().toBase64()) != jobject["QuestionChecksum"].toString();
-            _personne.addVote(q, jobject["Choix"].toVariant(), aVerifier);
-            itemsQuestions[q]->setBrush(aVerifier ? Qt::red : Qt::white);
         }
     }
 }
 
 void MainResPublica::on_AVote(std::shared_ptr<Question> question, QVariant choix)
 {
-    _personne.addVote(question, choix, false);
+    _electeurCour->addVote(question, choix, false);
+}
+
+
+void MainResPublica::on_actionSe_connecter_triggered()
+{
+    DlgConnexion dlgConnexion(this);
+    if (dlgConnexion.exec())
+    {
+        for (const auto & p : _personnes)
+        {
+            if (p->pseudonyme() == dlgConnexion.pseudonyme())
+            {
+                _electeurCour = p;
+                break;
+            }
+        }
+        if (!_electeurCour)
+        {
+            _electeurCour = make_shared<Personne>();
+            _electeurCour->setPseudonyme(dlgConnexion.pseudonyme());
+            _personnes.push_back(_electeurCour);
+        }
+    }
 }
 

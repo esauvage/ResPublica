@@ -28,10 +28,13 @@ private slots:
     void on_actionOuvrir_triggered();
     void on_AVote(std::shared_ptr<Question> question, QVariant choix);
 
+    void on_actionSe_connecter_triggered();
+
 private:
     Ui::MainResPublica *ui;
     std::list<std::shared_ptr<Question> > _questions;
+    std::list<std::shared_ptr<Personne> > _personnes;
+    std::shared_ptr<Personne> _electeurCour;
     VoteScene * _scene;
-    Personne _personne;
 };
 #endif // MAINRESPUBLICA_H

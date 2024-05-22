@@ -14,7 +14,7 @@
 using namespace std;
 //! [0]
 QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_ptr<Question> vote,
-                                         const Personne & personne,
+                                         const std::shared_ptr<Personne> personne,
                                          QGraphicsItem *parent, QObject *objParent)
     : QObject(objParent), QGraphicsPolygonItem(parent), myDiagramType(diagramType), _vote(vote), _personne(personne)
 {
@@ -102,7 +102,7 @@ void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         DlgListeQuestion dlg;
         dlg.setPossibilites(_vote->choix().toStringList());
-        dlg.setSelection(_personne.votes()[_vote].choix().toStringList());
+        dlg.setSelection(_personne->votes()[_vote].choix().toStringList());
         if (dlg.exec())
         {
             setBrush(Qt::white);

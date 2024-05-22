@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>17</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQuestions">
@@ -41,6 +41,7 @@
     </property>
     <addaction name="actionOuvrir"/>
     <addaction name="actionEnregistrer"/>
+    <addaction name="actionSe_connecter"/>
    </widget>
    <addaction name="menuFichier"/>
    <addaction name="menuQuestions"/>
@@ -71,6 +72,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSe_connecter">
+   <property name="text">
+    <string>Se connecter...</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+C</string>
    </property>
   </action>
  </widget>
