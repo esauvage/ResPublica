@@ -32,6 +32,7 @@ public:
     int type() const override { return Type; }
 signals:
     void AVote(std::shared_ptr<Question>, QVariant);
+    void montrerResultats(std::shared_ptr<Question>);
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
@@ -41,7 +42,8 @@ private:
     DiagramType myDiagramType;
     QPolygonF myPolygon;
     QGraphicsTextItem * _textItem;
-    std::shared_ptr<QGraphicsRectItem> _button;
+    std::shared_ptr<QGraphicsRectItem> _btnVote;
+    std::shared_ptr<QGraphicsRectItem> _btnResultat;
     std::shared_ptr<Question> _vote;
     const std::shared_ptr<Personne> _personne;
 };

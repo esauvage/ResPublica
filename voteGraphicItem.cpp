@@ -49,8 +49,10 @@ QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_pt
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
-    _button = make_shared<QGraphicsRectItem>(20, 20, 20, 20, this);
-    _button->setBrush(Qt::gray);
+    _btnVote = make_shared<QGraphicsRectItem>(20, 20, 20, 20, this);
+    _btnVote->setBrush(Qt::gray);
+    _btnResultat = make_shared<QGraphicsRectItem>(0, 20, 20, 20, this);
+    _btnResultat->setBrush(Qt::black);
     auto textItem = new QGraphicsTextItem(this);
     textItem->setZValue(1000.0);
     textItem->setPlainText(vote->question());
@@ -98,7 +100,7 @@ void QuestionGraphicItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 
 void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (_button->rect().contains(event->pos()))
+    if (_btnVote->rect().contains(event->pos()) && _personne)
     {
         DlgListeQuestion dlg;
         dlg.setPossibilites(_vote->choix().toStringList());
@@ -107,6 +109,13 @@ void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         {
             setBrush(Qt::white);
             emit AVote(_vote, dlg.selection());
+        }
+    }
+    else
+    {
+        if (_btnResultat->rect().contains(event->pos()))
+        {
+            emit montrerResultats(_vote);
         }
     }
     QGraphicsPolygonItem::mouseReleaseEvent(event);

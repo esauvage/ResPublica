@@ -12,6 +12,7 @@ SOURCES += \
     dlgconnexion.cpp \
     dlgeditvote.cpp \
     dlglistevote.cpp \
+    dlgresultats.cpp \
     main.cpp \
     mainrespublica.cpp \
     personne.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     dlgconnexion.h \
     dlgeditvote.h \
     dlglistevote.h \
+    dlgresultats.h \
     mainrespublica.h \
     personne.h \
     question.h \
@@ -40,6 +42,7 @@ FORMS += \
     dlgconnexion.ui \
     dlgeditvote.ui \
     dlglistevote.ui \
+    dlgresultats.ui \
     mainrespublica.ui
 
 TRANSLATIONS += \

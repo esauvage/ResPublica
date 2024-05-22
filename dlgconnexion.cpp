@@ -13,7 +13,7 @@ DlgConnexion::~DlgConnexion()
     delete ui;
 }
 
-const QString &DlgConnexion::pseudonyme() const
+const QString DlgConnexion::pseudonyme() const
 {
     return ui->edtPseudo->text();
 }

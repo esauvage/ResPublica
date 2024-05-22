@@ -14,7 +14,7 @@ class DlgConnexion : public QDialog
 public:
     explicit DlgConnexion(QWidget *parent = nullptr);
     ~DlgConnexion();
-    const QString &pseudonyme() const;
+    const QString pseudonyme() const;
 
 private:
     Ui::DlgConnexion *ui;

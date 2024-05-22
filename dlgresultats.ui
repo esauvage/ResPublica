@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DlgEditQuestion</class>
- <widget class="QDialog" name="DlgEditQuestion">
+ <class>DlgResultats</class>
+ <widget class="QDialog" name="DlgResultats">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,17 +11,19 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Question</string>
+   <string>Résultats</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="lblQuestion">
-     <property name="text">
-      <string>Question :</string>
-     </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTreeWidget" name="lstResultats">
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -31,19 +33,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QTextEdit" name="edtQuestion"/>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="lblOuverture">
-     <property name="text">
-      <string>Date d'ouverture :</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QDateTimeEdit" name="edtOuvertureDate"/>
-   </item>
   </layout>
  </widget>
  <resources/>
@@ -51,7 +40,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>DlgEditQuestion</receiver>
+   <receiver>DlgResultats</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -67,7 +56,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DlgEditQuestion</receiver>
+   <receiver>DlgResultats</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

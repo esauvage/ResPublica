@@ -12,6 +12,7 @@
 #include "VoteScene.h"
 #include "questionliste.h"
 #include "dlgconnexion.h"
+#include "dlgresultats.h"
 
 #include <QDebug>
 
@@ -19,7 +20,7 @@ using namespace std;
 
 MainResPublica::MainResPublica(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainResPublica)
+    , ui(new Ui::MainResPublica), _electeurCour(nullptr)
 {
     ui->setupUi(this);
     _scene = new VoteScene(this);
@@ -118,13 +119,12 @@ void MainResPublica::on_actionOuvrir_triggered()
         return;
 
     _questions.clear();
-    _scene->clear();
+    _personnes.clear();
     QByteArray saveData = entree.readAll();
 
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
     const QJsonObject corpus = loadDoc.object();
     const QJsonArray questions = corpus["questions"].toArray();
-    map<shared_ptr<Question>, QuestionGraphicItem *>itemsQuestions;
     for (const QJsonValue &q : questions)
     {
         auto nouveauQuestion = make_shared<QuestionListe>();
@@ -133,20 +133,23 @@ void MainResPublica::on_actionOuvrir_triggered()
         nouveauQuestion->setQuestion(jobject["Question"].toString());
         nouveauQuestion->setChoix(jobject["Choix"].toVariant());
         _questions.push_back(nouveauQuestion);
-        auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion, _electeurCour);
-        itemsQuestions.insert(QPair<shared_ptr<Question>, QuestionGraphicItem *>(nouveauQuestion, item));
-        item->setBrush(Qt::white);
-        _scene->addItem(item);
-        item->setSelected(true);
-        item->setPos(100 * nouveauQuestion->id(), 100 * nouveauQuestion->id());
     }
     const QJsonArray electeurs = corpus["electeurs"].toArray();
     for (const QJsonValue &e : electeurs)
     {
-        auto nouvelElecteur = make_shared<Personne>();
         const QJsonObject personne = e.toObject();
-        nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
-        _personnes.push_back(nouvelElecteur);
+        shared_ptr<Personne> nouvelElecteur = nullptr;
+        //Vérifier que ce n'est pas l'électeur courant
+        if (_electeurCour && _electeurCour->pseudonyme() == personne["Pseudo"].toString())
+        {
+            nouvelElecteur = _electeurCour;
+        }
+        else
+        {
+            nouvelElecteur = make_shared<Personne>();
+            nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
+            _personnes.push_back(nouvelElecteur);
+        }
         const QJsonArray votes = personne["Votes"].toArray();
         for (const auto &v : votes)
         {
@@ -159,9 +162,35 @@ void MainResPublica::on_actionOuvrir_triggered()
                 }
                 bool aVerifier = QString(q->checksum().toBase64()) != jobject["QuestionChecksum"].toString();
                 nouvelElecteur->addVote(q, jobject["Choix"].toVariant(), aVerifier);
-                itemsQuestions[q]->setBrush(aVerifier ? Qt::red : Qt::white);
             }
         }
+    }
+    creerScene();
+}
+
+
+void MainResPublica::creerScene()
+{
+    //Création de l'IHM.
+    _scene->clear();
+    map<shared_ptr<Question>, QuestionGraphicItem *>itemsQuestions;
+    for (const auto &q : _questions)
+    {
+        auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, q, _electeurCour);
+        itemsQuestions.insert(QPair<shared_ptr<Question>, QuestionGraphicItem *>(q, item));
+        if (_electeurCour)
+        {
+            itemsQuestions[q]->setBrush(_electeurCour->votes()[q].aConfirmer() ? Qt::red : Qt::white);
+        }
+        else
+        {
+            itemsQuestions[q]->setBrush(Qt::white);
+        }
+        _scene->addItem(item);
+        item->setSelected(true);
+        item->setPos(100 * q->id(), 100 * q->id());
+        connect(item, &QuestionGraphicItem::AVote, this, &MainResPublica::on_AVote);
+        connect(item, &QuestionGraphicItem::montrerResultats, this, &MainResPublica::on_MontrerResultats);
     }
 }
 
@@ -170,12 +199,25 @@ void MainResPublica::on_AVote(std::shared_ptr<Question> question, QVariant choix
     _electeurCour->addVote(question, choix, false);
 }
 
+void MainResPublica::on_MontrerResultats(std::shared_ptr<Question> question)
+{
+    list<Vote> votes;
+    for(const auto &p : _personnes)
+    {
+        votes.push_back(p->votes()[question]);
+    }
+    DlgResultats dlgResultats(this);
+    dlgResultats.setVotes(votes);
+    dlgResultats.exec();
+}
+
 
 void MainResPublica::on_actionSe_connecter_triggered()
 {
     DlgConnexion dlgConnexion(this);
     if (dlgConnexion.exec())
     {
+        _electeurCour = nullptr;
         for (const auto & p : _personnes)
         {
             if (p->pseudonyme() == dlgConnexion.pseudonyme())
@@ -191,5 +233,6 @@ void MainResPublica::on_actionSe_connecter_triggered()
             _personnes.push_back(_electeurCour);
         }
     }
+    creerScene();
 }
 

@@ -7,7 +7,7 @@ Personne::Personne() {}
 using namespace std;
 void Personne::addVote(std::shared_ptr<Question> question, QVariant choix, bool aVerifier)
 {
-    _votes.insert(pair<std::shared_ptr<Question>, Vote>(question, Vote(choix, aVerifier)));
+    _votes[question] = Vote(choix, aVerifier);
 }
 
 map<shared_ptr<Question>, Vote> Personne::votes() const
