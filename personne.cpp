@@ -24,3 +24,13 @@ void Personne::setPseudonyme(const QString &newPseudonyme)
 {
     _pseudonyme = newPseudonyme;
 }
+
+QByteArray Personne::clefPublique() const
+{
+    return _clefPublique;
+}
+
+void Personne::setClefPublique(const QByteArray &newClefPublique)
+{
+    _clefPublique = newClefPublique;
+}

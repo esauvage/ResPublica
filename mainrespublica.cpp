@@ -8,6 +8,8 @@
 
 #include <QMessageBox>
 
+#include <QProcess>
+
 #include "dlgeditvote.h"
 #include "VoteScene.h"
 #include "questionliste.h"
@@ -96,13 +98,14 @@ void MainResPublica::on_actionEnregistrer_triggered()
                 QMessageBox::information(this, "Attention", "Il vous reste des votes à confirmer");
             }
             jobject["Question"] = v.first->question();
-            jobject["QuestionChecksum"] = QJsonValue::fromVariant(QString(v.first->checksum().toBase64()));
+            jobject["QuestionChecksum"] = QString(v.first->checksum().toBase64());
             jobject["Choix"] = QJsonValue::fromVariant(v.second.choix());
             votes.append(jobject);
         }
         QJsonObject personne;
         personne["Votes"] = votes;
         personne["Pseudo"] = p->pseudonyme();
+        personne["ClefPublique"] = QString::fromUtf8(p->clefPublique());
         electeurs.append(personne);
     }
     corpus["electeurs"] = electeurs;
@@ -148,6 +151,7 @@ void MainResPublica::on_actionOuvrir_triggered()
         {
             nouvelElecteur = make_shared<Personne>();
             nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
+            nouvelElecteur->setClefPublique(personne["ClefPublique"].toString().toUtf8());
             _personnes.push_back(nouvelElecteur);
         }
         const QJsonArray votes = personne["Votes"].toArray();
@@ -231,6 +235,37 @@ void MainResPublica::on_actionSe_connecter_triggered()
             _electeurCour = make_shared<Personne>();
             _electeurCour->setPseudonyme(dlgConnexion.pseudonyme());
             _personnes.push_back(_electeurCour);
+            //Creation de la paire de clefs
+            QString program = "openssl";
+            QStringList arguments;
+            arguments << "genrsa" << "-out" << QString("%1.pem").arg(_electeurCour->pseudonyme()) << "2048";
+
+            QProcess *myProcess = new QProcess(this);
+            myProcess->start(program, arguments);
+            if (!myProcess->waitForFinished())
+            {
+                //TODO : gestion erreur
+            }
+            qDebug() << myProcess->error() << myProcess->readAllStandardOutput();
+            delete myProcess;
+
+            arguments.clear();
+            arguments << "rsa" << "-in" << QString("%1.pem").arg(_electeurCour->pseudonyme()) << "-pubout" << "-out" << QString("%1.crt").arg(_electeurCour->pseudonyme());
+            myProcess = new QProcess(this);
+            myProcess->start(program, arguments);
+            if (!myProcess->waitForFinished())
+            {
+                //TODO : gestion erreur
+            }
+            delete myProcess;
+            QFile clefPublique(QString("%1.crt").arg(_electeurCour->pseudonyme()));
+            if (!clefPublique.open(QIODevice::ReadOnly | QIODevice::Text))
+            {
+                qDebug() << "Fichier illisible";
+            }
+            _electeurCour->setClefPublique(clefPublique.readAll());
+            clefPublique.close();
+            //run "openssl genrsa -out private.pem 2048" "openssl rsa -in keypair.pem -pubout -out publickey.crt"
         }
     }
     creerScene();
