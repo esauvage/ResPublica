@@ -21,11 +21,19 @@ public:
     QStringList electeursConnus() const;
     void setElecteursConnus(const QStringList &newElecteursConnus);
 
+    QByteArray calculElecteursCheckSum() const;
+    bool verifierElecteurs(const QString v);
+
+    void setElecteursChecksum(const QString &newElecteursChecksum);
+
+    QString electeursChecksum() const;
+
 private:
     std::map<std::shared_ptr<Question>, Vote> _votes;
     QString _pseudonyme;
     QByteArray _clefPublique;
     QStringList _electeursConnus;
+    QString _electeursChecksum;
 };
 
 #endif // PERSONNE_H

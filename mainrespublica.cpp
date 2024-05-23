@@ -93,9 +93,12 @@ void MainResPublica::on_actionEnregistrer_triggered()
         {
             QJsonObject jobject;
             //Test d'absence de problème sur les votes
-            if (v.second.aConfirmer())
+            if (p == _electeurCour)
             {
-                QMessageBox::information(this, "Attention", "Il vous reste des votes à confirmer");
+                if (v.second.aConfirmer())
+                {
+                    QMessageBox::information(this, "Attention", "Il vous reste des votes à confirmer");
+                }
             }
             jobject["Question"] = v.first->question();
             jobject["QuestionChecksum"] = QString(v.first->checksum().toBase64());
@@ -106,7 +109,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
         personne["Votes"] = votes;
         personne["Pseudo"] = p->pseudonyme();
         personne["ClefPublique"] = QString::fromUtf8(p->clefPublique());
-        if (p ==  _electeurCour)
+        if (p == _electeurCour)
         {
             QStringList pseudos;
             for (const auto & e : _personnes)
@@ -114,12 +117,15 @@ void MainResPublica::on_actionEnregistrer_triggered()
                 if (e == p) continue;
                 pseudos << e->pseudonyme();
             }
+            p->setElecteursConnus(pseudos);
             personne["ElecteursConnus"] = QJsonArray::fromStringList(pseudos);
+            p->setElecteursChecksum(p->calculElecteursCheckSum().toBase64());
         }
         else
         {
             personne["ElecteursConnus"] = QJsonArray::fromStringList(p->electeursConnus());
         }
+        personne["ElecteursCheckSum"] = p->electeursChecksum();
         electeurs.append(personne);
     }
     corpus["electeurs"] = electeurs;
@@ -160,6 +166,7 @@ void MainResPublica::on_actionOuvrir_triggered()
         if (_electeurCour && _electeurCour->pseudonyme() == personne["Pseudo"].toString())
         {
             nouvelElecteur = _electeurCour;
+            nouvelElecteur->deleteVotes();
         }
         else
         {
@@ -173,8 +180,13 @@ void MainResPublica::on_actionOuvrir_triggered()
                 c << i.toString();
             }
             nouvelElecteur->setElecteursConnus(c);
-            _personnes.push_back(nouvelElecteur);
+            nouvelElecteur->setElecteursChecksum(personne["ElecteursCheckSum"].toString());
+            if (!nouvelElecteur->verifierElecteurs(personne["ElecteursCheckSum"].toString()))
+            {
+                QMessageBox::information(this, "Corruption du fichier", "La liste des électeurs a été corrompue");
+            }
         }
+        _personnes.push_back(nouvelElecteur);
         const QJsonArray votes = personne["Votes"].toArray();
         for (const auto &v : votes)
         {

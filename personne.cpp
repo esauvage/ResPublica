@@ -1,6 +1,7 @@
 #include "personne.h"
 
 #include "vote.h"
+#include "cipher.h"
 
 Personne::Personne() {}
 
@@ -13,6 +14,11 @@ void Personne::addVote(std::shared_ptr<Question> question, QVariant choix, bool 
 map<shared_ptr<Question>, Vote> Personne::votes() const
 {
     return _votes;
+}
+
+void Personne::deleteVotes()
+{
+    _votes.clear();
 }
 
 QString Personne::pseudonyme() const
@@ -43,4 +49,31 @@ QStringList Personne::electeursConnus() const
 void Personne::setElecteursConnus(const QStringList &newElecteursConnus)
 {
     _electeursConnus = newElecteursConnus;
+}
+
+QByteArray Personne::calculElecteursCheckSum() const
+{
+    Cipher cipher;
+    auto privateKey = cipher.getPrivateKey(QString("%1.pem").arg(pseudonyme()));
+    QByteArray electeurs = _electeursConnus.join(";").toUtf8();
+    return cipher.encryptPrivateRSA(privateKey, electeurs);
+}
+
+bool Personne::verifierElecteurs(const QString v)
+{
+    Cipher cipher;
+    auto publicKey = cipher.getPublicKey(_clefPublique);
+    auto code = QByteArray::fromBase64(v.toUtf8());
+    auto decode = cipher.decryptPublicRSA(publicKey, code);
+    return decode == _electeursConnus.join(";").toUtf8();
+}
+
+void Personne::setElecteursChecksum(const QString &newElecteursChecksum)
+{
+    _electeursChecksum = newElecteursChecksum;
+}
+
+QString Personne::electeursChecksum() const
+{
+    return _electeursChecksum;
 }

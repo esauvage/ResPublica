@@ -8,7 +8,10 @@ CONFIG += c++11
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+DEFINES += _WIN32_WINNT
+
 SOURCES += \
+    cipher.cpp \
     dlgconnexion.cpp \
     dlgeditvote.cpp \
     dlglistevote.cpp \
@@ -26,6 +29,7 @@ SOURCES += \
 HEADERS += \
     VoteScene.h \
     VoteScene.h \
+    cipher.h \
     dlgconnexion.h \
     dlgeditvote.h \
     dlglistevote.h \
@@ -49,6 +53,11 @@ TRANSLATIONS += \
     ResPublica_fr_FR.ts
 CONFIG += lrelease
 CONFIG += embed_translations
+
+INCLUDEPATH += D:\Qt\Tools\mingw1120_64\opt\include
+
+LIBS +=  \
+    "D:\Qt\Tools\OpenSSLv3\Win_x64\lib\libcrypto.lib"
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
