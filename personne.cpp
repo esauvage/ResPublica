@@ -34,3 +34,13 @@ void Personne::setClefPublique(const QByteArray &newClefPublique)
 {
     _clefPublique = newClefPublique;
 }
+
+QStringList Personne::electeursConnus() const
+{
+    return _electeursConnus;
+}
+
+void Personne::setElecteursConnus(const QStringList &newElecteursConnus)
+{
+    _electeursConnus = newElecteursConnus;
+}

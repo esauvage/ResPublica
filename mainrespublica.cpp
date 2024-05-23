@@ -106,6 +106,20 @@ void MainResPublica::on_actionEnregistrer_triggered()
         personne["Votes"] = votes;
         personne["Pseudo"] = p->pseudonyme();
         personne["ClefPublique"] = QString::fromUtf8(p->clefPublique());
+        if (p ==  _electeurCour)
+        {
+            QStringList pseudos;
+            for (const auto & e : _personnes)
+            {
+                if (e == p) continue;
+                pseudos << e->pseudonyme();
+            }
+            personne["ElecteursConnus"] = QJsonArray::fromStringList(pseudos);
+        }
+        else
+        {
+            personne["ElecteursConnus"] = QJsonArray::fromStringList(p->electeursConnus());
+        }
         electeurs.append(personne);
     }
     corpus["electeurs"] = electeurs;
@@ -152,6 +166,13 @@ void MainResPublica::on_actionOuvrir_triggered()
             nouvelElecteur = make_shared<Personne>();
             nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
             nouvelElecteur->setClefPublique(personne["ClefPublique"].toString().toUtf8());
+            const QJsonArray connus = personne["ElecteursConnus"].toArray();
+            QStringList c;
+            for (const auto & i : connus)
+            {
+                c << i.toString();
+            }
+            nouvelElecteur->setElecteursConnus(c);
             _personnes.push_back(nouvelElecteur);
         }
         const QJsonArray votes = personne["Votes"].toArray();
