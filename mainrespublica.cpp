@@ -173,20 +173,19 @@ void MainResPublica::on_actionOuvrir_triggered()
             nouvelElecteur = make_shared<Personne>();
             nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
             nouvelElecteur->setClefPublique(personne["ClefPublique"].toString().toUtf8());
-            const QJsonArray connus = personne["ElecteursConnus"].toArray();
-            QStringList c;
-            for (const auto & i : connus)
-            {
-                c << i.toString();
-            }
-            nouvelElecteur->setElecteursConnus(c);
-            nouvelElecteur->setElecteursChecksum(personne["ElecteursCheckSum"].toString());
-            if (!nouvelElecteur->verifierElecteurs(personne["ElecteursCheckSum"].toString()))
-            {
-                QMessageBox::information(this, "Corruption du fichier", "La liste des électeurs a été corrompue");
-            }
         }
-        _personnes.push_back(nouvelElecteur);
+        const QJsonArray connus = personne["ElecteursConnus"].toArray();
+        QStringList c;
+        for (const auto & i : connus)
+        {
+            c << i.toString();
+        }
+        nouvelElecteur->setElecteursConnus(c);
+        nouvelElecteur->setElecteursChecksum(personne["ElecteursCheckSum"].toString());
+        if (!nouvelElecteur->verifierElecteurs(personne["ElecteursCheckSum"].toString()))
+        {
+            QMessageBox::information(this, "Corruption du fichier", "La liste des électeurs a été corrompue");
+        }
         const QJsonArray votes = personne["Votes"].toArray();
         for (const auto &v : votes)
         {
@@ -201,6 +200,7 @@ void MainResPublica::on_actionOuvrir_triggered()
                 nouvelElecteur->addVote(q, jobject["Choix"].toVariant(), aVerifier);
             }
         }
+        _personnes.push_back(nouvelElecteur);
     }
     creerScene();
 }
