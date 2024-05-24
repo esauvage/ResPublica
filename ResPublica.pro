@@ -54,10 +54,12 @@ TRANSLATIONS += \
 CONFIG += lrelease
 CONFIG += embed_translations
 
-INCLUDEPATH += D:\Qt\Tools\mingw1120_64\opt\include
+INCLUDEPATH += D:\Qt\Tools\mingw1120_64\opt\include \
+    C:\Qt\Tools\mingw1120_64\opt\include
 
 LIBS +=  \
-    "D:\Qt\Tools\OpenSSLv3\Win_x64\lib\libcrypto.lib"
+    "C:\Program Files\PostgreSQL\13\lib\libcrypto.lib"
+#    "D:\Qt\Tools\OpenSSLv3\Win_x64\lib\libcrypto.lib"
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

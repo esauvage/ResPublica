@@ -11,6 +11,7 @@ public:
     Personne();
     void addVote(std::shared_ptr<Question> question, QVariant choix, bool aVerifier = true);
     std::map<std::shared_ptr<Question>, Vote> votes() const;
+    void deleteVotes();
 
     QString pseudonyme() const;
     void setPseudonyme(const QString &newPseudonyme);
