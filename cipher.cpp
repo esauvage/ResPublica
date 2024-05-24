@@ -27,7 +27,7 @@ RSA *Cipher::getPublicKey(QByteArray &data)
 
 }
 
-RSA *Cipher::getPublicKey(QString filename)
+RSA *Cipher::getPublicKeyFromFile(QString filename)
 {
     QByteArray data = readFile(filename);
 

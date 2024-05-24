@@ -99,6 +99,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
                 {
                     QMessageBox::information(this, "Attention", "Il vous reste des votes à confirmer");
                 }
+                p->setVotesChecksum(p->signatureVotes());
             }
             jobject["Question"] = v.first->question();
             jobject["QuestionChecksum"] = QString(v.first->checksum().toBase64());
@@ -107,6 +108,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
         }
         QJsonObject personne;
         personne["Votes"] = votes;
+        personne["VotesChecksum"] = p->votesChecksum();
         personne["Pseudo"] = p->pseudonyme();
         personne["ClefPublique"] = QString::fromUtf8(p->clefPublique());
         if (p == _electeurCour)
@@ -186,6 +188,11 @@ void MainResPublica::on_actionOuvrir_triggered()
         {
             QMessageBox::information(this, "Corruption du fichier", "La liste des électeurs a été corrompue");
         }
+        nouvelElecteur->setVotesChecksum(personne["VotesChecksum"].toString());
+        if (!nouvelElecteur->verifierVotes())
+        {
+            QMessageBox::information(this, "Corruption du fichier", QString("Les votes de %1 ont été corrompus").arg(nouvelElecteur->pseudonyme()));
+        }
         const QJsonArray votes = personne["Votes"].toArray();
         for (const auto &v : votes)
         {
@@ -202,9 +209,33 @@ void MainResPublica::on_actionOuvrir_triggered()
         }
         _personnes.push_back(nouvelElecteur);
     }
+    if (!verifierPresenceConnus())
+    {
+        QMessageBox::information(this, "Corruption du fichier", "Des électeurs référencés ne sont pas présents dans le fichier.");
+    }
     creerScene();
 }
 
+bool MainResPublica::verifierPresenceConnus()
+{
+    bool trouve = true;
+    QStringList pseudos;
+    for (const auto &p : _personnes)
+    {
+        pseudos << p->pseudonyme();
+    }
+    for (const auto &p : _personnes)
+    {
+        const auto connus = p->electeursConnus();
+        for (const auto &c : connus)
+        {
+            trouve &= pseudos.contains(c);
+            if (!trouve) break;
+        }
+        if (!trouve) break;
+    }
+    return trouve;
+}
 
 void MainResPublica::creerScene()
 {

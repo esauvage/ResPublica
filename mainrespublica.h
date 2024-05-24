@@ -31,6 +31,7 @@ private slots:
     void on_actionSe_connecter_triggered();
 
 private:
+    bool verifierPresenceConnus();
     void creerScene();
 
     Ui::MainResPublica *ui;

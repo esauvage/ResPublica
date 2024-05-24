@@ -57,7 +57,7 @@ public:
      * @param filename The file to load
      * @return RSA
      */
-    RSA *getPublicKey(QString filename);
+    RSA *getPublicKeyFromFile(QString filename);
 
     /**
      * @brief Loads the private key from a byte array

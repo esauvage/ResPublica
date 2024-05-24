@@ -26,8 +26,13 @@ public:
     bool verifierElecteurs(const QString v);
 
     void setElecteursChecksum(const QString &newElecteursChecksum);
-
     QString electeursChecksum() const;
+
+    QString signatureVotes() const;
+    bool verifierVotes();
+
+    QString votesChecksum() const;
+    void setVotesChecksum(const QString &newVotesChecksum);
 
 private:
     std::map<std::shared_ptr<Question>, Vote> _votes;
@@ -35,6 +40,7 @@ private:
     QByteArray _clefPublique;
     QStringList _electeursConnus;
     QString _electeursChecksum;
+    QString _votesChecksum;
 };
 
 #endif // PERSONNE_H
