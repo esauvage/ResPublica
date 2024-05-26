@@ -92,10 +92,10 @@ QString Personne::signatureVotes() const
         }
     }
     QCryptographicHash hasher(QCryptographicHash::Blake2s_256);
-    QByteArray checksum = hasher.hash(votes.join(";").toUtf8(), QCryptographicHash::Blake2s_256);
+    QByteArray checksum = hasher.hash(votes.join(";").toLocal8Bit(), QCryptographicHash::Blake2s_256);
     Cipher cipher;
     auto privateKey = cipher.getPrivateKey(QString("%1.pem").arg(pseudonyme()));
-    return QString(cipher.encryptPrivateRSA(privateKey, checksum).toBase64());
+    return QString::fromLocal8Bit(cipher.encryptPrivateRSA(privateKey, checksum));
 }
 
 bool Personne::verifierVotes()
@@ -109,10 +109,10 @@ bool Personne::verifierVotes()
         }
     }
     QCryptographicHash hasher(QCryptographicHash::Blake2s_256);
-    QByteArray checksum = hasher.hash(votes.join(";").toUtf8(), QCryptographicHash::Blake2s_256);
+    QByteArray checksum = hasher.hash(votes.join(";").toLocal8Bit(), QCryptographicHash::Blake2s_256);
     Cipher cipher;
     auto publicKey = cipher.getPublicKey(_clefPublique);
-    auto code = QByteArray::fromBase64(_votesChecksum.toUtf8());
+    auto code = _votesChecksum.toLocal8Bit();
     auto decode = cipher.decryptPublicRSA(publicKey, code);
     return (decode == checksum);
 }

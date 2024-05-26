@@ -188,11 +188,6 @@ void MainResPublica::on_actionOuvrir_triggered()
         {
             QMessageBox::information(this, "Corruption du fichier", "La liste des électeurs a été corrompue");
         }
-        nouvelElecteur->setVotesChecksum(personne["VotesChecksum"].toString());
-        if (!nouvelElecteur->verifierVotes())
-        {
-            QMessageBox::information(this, "Corruption du fichier", QString("Les votes de %1 ont été corrompus").arg(nouvelElecteur->pseudonyme()));
-        }
         const QJsonArray votes = personne["Votes"].toArray();
         for (const auto &v : votes)
         {
@@ -206,6 +201,11 @@ void MainResPublica::on_actionOuvrir_triggered()
                 bool aVerifier = QString(q->checksum().toBase64()) != jobject["QuestionChecksum"].toString();
                 nouvelElecteur->addVote(q, jobject["Choix"].toVariant(), aVerifier);
             }
+        }
+        nouvelElecteur->setVotesChecksum(personne["VotesChecksum"].toString());
+        if (!nouvelElecteur->verifierVotes())
+        {
+            QMessageBox::information(this, "Corruption du fichier", QString("Les votes de %1 ont été corrompus").arg(nouvelElecteur->pseudonyme()));
         }
         _personnes.push_back(nouvelElecteur);
     }
