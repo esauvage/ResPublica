@@ -29,6 +29,7 @@ MainResPublica::MainResPublica(QWidget *parent)
     _scene = new VoteScene(this);
     _scene->setSceneRect(QRectF(0, 0, 5000, 5000));
     ui->mainView->setScene(_scene);
+//    ui->actionSe_d_sinscrire->setEnabled(false);
     connect(_scene, &VoteScene::itemInserted, this, &MainResPublica::itemInserted);
 //    connect(scene, &VoteScene::textInserted,
 //            this, &MainWindow::textInserted);
@@ -81,6 +82,10 @@ void MainResPublica::on_actionEnregistrer_triggered()
     QJsonArray electeurs;
     for (const auto & p : _personnes)
     {
+        if ((p == _electeurCour) && (_desinscriptions.contains(p->pseudonyme())))
+        {
+            continue;
+        }
         QJsonArray votes;
         for (const auto &v : p->votes())
         {
@@ -110,6 +115,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
             for (const auto & e : _personnes)
             {
                 if (e == p) continue;
+                if (_desinscriptions.contains(e->pseudonyme())) continue;
                 pseudos << e->pseudonyme();
             }
             p->setElecteursConnus(pseudos);
@@ -147,6 +153,12 @@ void MainResPublica::on_actionEnregistrer_triggered()
         votes.append(jobject);
     }
     corpus["VotesSecrets"] = votes;
+    QJsonArray desinscriptions;
+    for (auto &v : _desinscriptions)
+    {
+        desinscriptions.append(v);
+    }
+    corpus["Desinscrits"] = desinscriptions;
     QJsonDocument doc( corpus );
     out << doc.toJson() << "\n";
     sortie.close();
@@ -160,9 +172,9 @@ void MainResPublica::on_actionOuvrir_triggered()
 
     _questions.clear();
     _personnes.clear();
-    QByteArray saveData = entree.readAll();
+    _votesSecrets.clear();
 
-    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
+    QJsonDocument loadDoc(QJsonDocument::fromJson(entree.readAll()));
     const QJsonObject corpus = loadDoc.object();
     FabriqueQuestions fabriqueQuestions;
     fabriqueQuestions.lireJson(corpus["questions"].toArray(), _questions);
@@ -238,7 +250,7 @@ void MainResPublica::on_actionOuvrir_triggered()
                 v.setClefPublique(vote.toObject()["VoteClefPublique"].toString().toUtf8());
                 if (!v.verifie(q->question()))
                 {
-                    QMessageBox::information(this, "Corruption du fichier", QString("Les votes secrets %1 ont été corrompus").arg(q->question()));
+                    QMessageBox::information(this, "Corruption du fichier", QString("Les votes à bulletins secrets à la question %1 ont été corrompus").arg(q->question()));
                 }
                 _votesSecrets[q].push_back(v);
             }
@@ -372,7 +384,16 @@ void MainResPublica::on_actionSe_connecter_triggered()
             clefPublique.close();
             //run "openssl genrsa -out private.pem 2048" "openssl rsa -in keypair.pem -pubout -out publickey.crt"
         }
+        ui->actionSe_d_sinscrire->setEnabled(true);
     }
     creerScene();
+}
+
+
+void MainResPublica::on_actionSe_d_sinscrire_triggered()
+{
+    if (!_electeurCour)
+        return;
+    _desinscriptions << _electeurCour->pseudonyme();
 }
 

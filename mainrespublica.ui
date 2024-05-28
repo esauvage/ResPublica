@@ -42,6 +42,7 @@
     <addaction name="actionOuvrir"/>
     <addaction name="actionEnregistrer"/>
     <addaction name="actionSe_connecter"/>
+    <addaction name="actionSe_d_sinscrire"/>
    </widget>
    <addaction name="menuFichier"/>
    <addaction name="menuQuestions"/>
@@ -80,6 +81,14 @@
    </property>
    <property name="shortcut">
     <string>Alt+C</string>
+   </property>
+  </action>
+  <action name="actionSe_d_sinscrire">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Se désinscrire</string>
    </property>
   </action>
  </widget>

@@ -30,6 +30,7 @@ private slots:
     void on_AVoteSecret(std::shared_ptr<Question> question, QVariant choix);
     void on_MontrerResultats(std::shared_ptr<Question> question);
     void on_actionSe_connecter_triggered();
+    void on_actionSe_d_sinscrire_triggered();
 
 private:
     bool verifierPresenceConnus();
@@ -41,5 +42,6 @@ private:
     std::map<std::shared_ptr<Question>, std::list<Vote> > _votesSecrets;
     std::shared_ptr<Personne> _electeurCour;
     VoteScene * _scene;
+    QStringList _desinscriptions;
 };
 #endif // MAINRESPUBLICA_H

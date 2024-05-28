@@ -81,6 +81,7 @@ QString Vote::signe(const QString &question)
     cipher.freeRSAKey(privateKey);
     QFile file (QString("%1.pem").arg(nom));
     file.remove();
+    clefPublique.remove();
     return ret;
 }
 
