@@ -32,6 +32,7 @@ public:
     int type() const override { return Type; }
 signals:
     void AVote(std::shared_ptr<Question>, QVariant);
+    void AVoteSecret(std::shared_ptr<Question>, QVariant);
     void montrerResultats(std::shared_ptr<Question>);
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;

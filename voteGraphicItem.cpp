@@ -5,6 +5,7 @@
 #include <QPainter>
 
 #include <QDialog>
+#include <QMessageBox>
 
 #include "question.h"
 #include "personne.h"
@@ -102,13 +103,27 @@ void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (_btnVote->rect().contains(event->pos()) && _personne)
     {
-        DlgListeQuestion dlg;
-        dlg.setPossibilites(_vote->choix().toStringList());
-        dlg.setSelection(_personne->votes()[_vote].choix().toStringList());
-        if (dlg.exec())
+        if (_personne->votes()[_vote].choix().toString() == "Vote à bulletin secret")
         {
-            setBrush(Qt::white);
-            emit AVote(_vote, dlg.selection());
+            QMessageBox::information(nullptr, "Vote secret", "Vous avez déjà voté à bulletin secret");
+        }
+        else
+        {
+            DlgListeQuestion dlg;
+            dlg.setPossibilites(_vote->choix().toStringList());
+            dlg.setSelection(_personne->votes()[_vote].choix().toStringList());
+            if (dlg.exec())
+            {
+                setBrush(Qt::white);
+                if (dlg.estSecret())
+                {
+                    emit AVoteSecret(_vote, dlg.selection());
+                }
+                else
+                {
+                    emit AVote(_vote, dlg.selection());
+                }
+            }
         }
     }
     else

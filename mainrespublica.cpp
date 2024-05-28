@@ -75,17 +75,9 @@ void MainResPublica::on_actionEnregistrer_triggered()
         return;
 
     QTextStream out(&sortie);
-    QJsonArray questions;
-    for (const auto &v : _questions)
-    {
-        QJsonObject jobject;
-        jobject["id"] = QJsonValue::fromVariant(v->id());
-        jobject["Question"] = v->question();
-        jobject["Choix"] = QJsonValue::fromVariant(v->choix());
-        questions.append(jobject);
-    }
     QJsonObject corpus;
-    corpus["questions"] = questions;
+    FabriqueQuestions fabriqueQuestions;
+    corpus["questions"] = fabriqueQuestions.ecrireJson(_questions);
     QJsonArray electeurs;
     for (const auto & p : _personnes)
     {
@@ -132,6 +124,29 @@ void MainResPublica::on_actionEnregistrer_triggered()
         electeurs.append(personne);
     }
     corpus["electeurs"] = electeurs;
+    QJsonArray votes;
+    for (auto &v : _votesSecrets)
+    {
+        QJsonObject jobject;
+        jobject["Question"] = v.first->question();
+        QJsonArray liste;
+        for (auto & elem : v.second)
+        {
+            QJsonObject voteValide;
+            voteValide["Vote"] = QJsonValue::fromVariant(elem.choix());
+            if (elem.checksum().isEmpty())
+            {
+                elem.setChecksum(elem.signe(v.first->question()));
+            }
+            voteValide["VoteChecksum"] = QJsonValue::fromVariant(elem.checksum());
+            voteValide["VoteClefPublique"] = QJsonValue::fromVariant(elem.clefPublique());
+            liste.append(voteValide);
+        }
+        jobject["Votes"] = liste;
+        jobject["QuestionChecksum"] = QString(v.first->checksum().toBase64());
+        votes.append(jobject);
+    }
+    corpus["VotesSecrets"] = votes;
     QJsonDocument doc( corpus );
     out << doc.toJson() << "\n";
     sortie.close();
@@ -149,9 +164,8 @@ void MainResPublica::on_actionOuvrir_triggered()
 
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
     const QJsonObject corpus = loadDoc.object();
-    const QJsonArray questions = corpus["questions"].toArray();
     FabriqueQuestions fabriqueQuestions;
-    fabriqueQuestions.lireJson(questions, _questions);
+    fabriqueQuestions.lireJson(corpus["questions"].toArray(), _questions);
 
     const QJsonArray electeurs = corpus["electeurs"].toArray();
     for (const QJsonValue &e : electeurs)
@@ -207,6 +221,29 @@ void MainResPublica::on_actionOuvrir_triggered()
     {
         QMessageBox::information(this, "Corruption du fichier", "Des électeurs référencés ne sont pas présents dans le fichier.");
     }
+    const QJsonArray votesSecrets = corpus["VotesSecrets"].toArray();
+    for (const auto &v : votesSecrets)
+    {
+        QJsonObject jobject = v.toObject();
+        for (const shared_ptr<Question> &q : _questions)
+        {
+            if (q->question() != jobject["Question"].toString())
+            {
+                continue;
+            }
+            for (const auto & vote : jobject["Votes"].toArray())
+            {
+                Vote v(vote.toObject()["Vote"].toVariant());
+                v.setChecksum(vote.toObject()["VoteChecksum"].toString());
+                v.setClefPublique(vote.toObject()["VoteClefPublique"].toString().toUtf8());
+                if (!v.verifie(q->question()))
+                {
+                    QMessageBox::information(this, "Corruption du fichier", QString("Les votes secrets %1 ont été corrompus").arg(q->question()));
+                }
+                _votesSecrets[q].push_back(v);
+            }
+        }
+    }
     creerScene();
 }
 
@@ -252,6 +289,7 @@ void MainResPublica::creerScene()
         item->setSelected(true);
         item->setPos(100 * q->id(), 100 * q->id());
         connect(item, &QuestionGraphicItem::AVote, this, &MainResPublica::on_AVote);
+        connect(item, &QuestionGraphicItem::AVoteSecret, this, &MainResPublica::on_AVoteSecret);
         connect(item, &QuestionGraphicItem::montrerResultats, this, &MainResPublica::on_MontrerResultats);
     }
 }
@@ -261,6 +299,12 @@ void MainResPublica::on_AVote(std::shared_ptr<Question> question, QVariant choix
     _electeurCour->addVote(question, choix, false);
 }
 
+void MainResPublica::on_AVoteSecret(std::shared_ptr<Question> question, QVariant choix)
+{
+    _votesSecrets[question].push_back(Vote(choix, false));
+    _electeurCour->addVote(question, "Vote à bulletin secret", false);
+}
+
 void MainResPublica::on_MontrerResultats(std::shared_ptr<Question> question)
 {
     list<Vote> votes;
@@ -268,11 +312,14 @@ void MainResPublica::on_MontrerResultats(std::shared_ptr<Question> question)
     {
         votes.push_back(p->votes()[question]);
     }
+    for(const auto &p : _votesSecrets[question])
+    {
+        votes.push_back(p);
+    }
     DlgResultats dlgResultats(this);
     dlgResultats.setVotes(votes);
     dlgResultats.exec();
 }
-
 
 void MainResPublica::on_actionSe_connecter_triggered()
 {

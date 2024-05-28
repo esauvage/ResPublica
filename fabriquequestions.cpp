@@ -10,7 +10,7 @@ using namespace std;
 
 FabriqueQuestions::FabriqueQuestions() {}
 
-bool FabriqueQuestions::lireJson(const QJsonArray &questions, list<shared_ptr<Question> > &_questions)
+bool FabriqueQuestions::lireJson(const QJsonArray &questions, list<shared_ptr<Question> > &_questions) const
 {
     for (const QJsonValue &q : questions)
     {
@@ -21,4 +21,18 @@ bool FabriqueQuestions::lireJson(const QJsonArray &questions, list<shared_ptr<Qu
         nouveauQuestion->setChoix(jobject["Choix"].toVariant());
         _questions.push_back(nouveauQuestion);
     }
+}
+
+QJsonArray FabriqueQuestions::ecrireJson(const std::list<std::shared_ptr<Question> > &_questions) const
+{
+    QJsonArray questions;
+    for (const auto &v : _questions)
+    {
+        QJsonObject jobject;
+        jobject["id"] = QJsonValue::fromVariant(v->id());
+        jobject["Question"] = v->question();
+        jobject["Choix"] = QJsonValue::fromVariant(v->choix());
+        questions.append(jobject);
+    }
+    return questions;
 }

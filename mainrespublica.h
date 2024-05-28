@@ -27,6 +27,7 @@ private slots:
     void on_actionEnregistrer_triggered();
     void on_actionOuvrir_triggered();
     void on_AVote(std::shared_ptr<Question> question, QVariant choix);
+    void on_AVoteSecret(std::shared_ptr<Question> question, QVariant choix);
     void on_MontrerResultats(std::shared_ptr<Question> question);
     void on_actionSe_connecter_triggered();
 
@@ -37,6 +38,7 @@ private:
     Ui::MainResPublica *ui;
     std::list<std::shared_ptr<Question> > _questions;
     std::list<std::shared_ptr<Personne> > _personnes;
+    std::map<std::shared_ptr<Question>, std::list<Vote> > _votesSecrets;
     std::shared_ptr<Personne> _electeurCour;
     VoteScene * _scene;
 };

@@ -11,7 +11,8 @@ class FabriqueQuestions
 {
 public:
     FabriqueQuestions();
-    bool lireJson(const QJsonArray &questions, std::list<std::shared_ptr<Question> > &_questions);
+    bool lireJson(const QJsonArray &questions, std::list<std::shared_ptr<Question> > &_questions) const;
+    QJsonArray ecrireJson(const std::list<std::shared_ptr<Question> > &_questions) const;
 };
 
 #endif // FABRIQUEQUESTIONS_H

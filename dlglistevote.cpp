@@ -42,6 +42,11 @@ QStringList DlgListeQuestion::selection() const
     return r;
 }
 
+bool DlgListeQuestion::estSecret()
+{
+    return ui->chbBulletinSecret->isChecked();
+}
+
 void DlgListeQuestion::on_btnSelect_clicked()
 {
     for (auto s : ui->lstPossibles->selectedItems())

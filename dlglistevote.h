@@ -18,6 +18,7 @@ public:
     void setPossibilites(const QStringList &v);
     void setSelection(const QStringList &v);
     QStringList selection() const;
+    bool estSecret();
 
 private slots:
     void on_btnSelect_clicked();
