@@ -19,7 +19,7 @@ public:
 
     size_t id() const;
     void setId(size_t newId);
-    virtual QByteArray checksum() const = 0;;
+    virtual QByteArray checksum() const = 0;
 
     static size_t suivantId;
 

@@ -35,6 +35,8 @@ public:
     void setVotesChecksum(const QString &newVotesChecksum);
 
 private:
+    QByteArray checksumVotes() const;
+
     std::map<std::shared_ptr<Question>, Vote> _votes;
     QString _pseudonyme;
     QByteArray _clefPublique;

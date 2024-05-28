@@ -12,6 +12,7 @@
 
 #include "dlgeditvote.h"
 #include "VoteScene.h"
+#include "fabriquequestions.h"
 #include "questionliste.h"
 #include "dlgconnexion.h"
 #include "dlgresultats.h"
@@ -136,7 +137,6 @@ void MainResPublica::on_actionEnregistrer_triggered()
     sortie.close();
 }
 
-
 void MainResPublica::on_actionOuvrir_triggered()
 {
     QFile entree("Votes.txt");
@@ -150,15 +150,9 @@ void MainResPublica::on_actionOuvrir_triggered()
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
     const QJsonObject corpus = loadDoc.object();
     const QJsonArray questions = corpus["questions"].toArray();
-    for (const QJsonValue &q : questions)
-    {
-        auto nouveauQuestion = make_shared<QuestionListe>();
-        QJsonObject jobject = q.toObject();
-        nouveauQuestion->setId(jobject["id"].toInteger());
-        nouveauQuestion->setQuestion(jobject["Question"].toString());
-        nouveauQuestion->setChoix(jobject["Choix"].toVariant());
-        _questions.push_back(nouveauQuestion);
-    }
+    FabriqueQuestions fabriqueQuestions;
+    fabriqueQuestions.lireJson(questions, _questions);
+
     const QJsonArray electeurs = corpus["electeurs"].toArray();
     for (const QJsonValue &e : electeurs)
     {

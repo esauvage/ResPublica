@@ -16,6 +16,7 @@ SOURCES += \
     dlgeditvote.cpp \
     dlglistevote.cpp \
     dlgresultats.cpp \
+    fabriquequestions.cpp \
     main.cpp \
     mainrespublica.cpp \
     personne.cpp \
@@ -34,6 +35,7 @@ HEADERS += \
     dlgeditvote.h \
     dlglistevote.h \
     dlgresultats.h \
+    fabriquequestions.h \
     mainrespublica.h \
     personne.h \
     question.h \
@@ -58,8 +60,8 @@ INCLUDEPATH += D:\Qt\Tools\mingw1120_64\opt\include \
     C:\Qt\Tools\mingw1120_64\opt\include
 
 LIBS +=  \
-#    "C:\Program Files\PostgreSQL\13\lib\libcrypto.lib"
-    "D:\Qt\Tools\OpenSSLv3\Win_x64\lib\libcrypto.lib"
+    "C:\Program Files\PostgreSQL\13\lib\libcrypto.lib"
+#    "D:\Qt\Tools\OpenSSLv3\Win_x64\lib\libcrypto.lib"
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

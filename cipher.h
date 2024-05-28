@@ -116,8 +116,8 @@ public:
      */
     void freeRSAKey(RSA *key);
 
-    QByteArray encryptPrivateRSA(RSA *key, QByteArray &data);
-    QByteArray decryptPublicRSA(RSA *key, QByteArray &data);
+    QByteArray encryptPrivateRSA(RSA *key, const QByteArray &data);
+    QByteArray decryptPublicRSA(RSA *key, const QByteArray &data);
 signals:
 
 public slots:
