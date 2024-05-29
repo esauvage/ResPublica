@@ -79,7 +79,7 @@ public:
      * @param data The data to encrypt
      * @return QByteArray
      */
-    QByteArray encryptRSA(RSA *key, QByteArray &data);
+    QByteArray encryptRSA(RSA *key, const QByteArray &data);
 
     /**
      * @brief Decrypts a byte array using the RSA private key
@@ -87,7 +87,7 @@ public:
      * @param data The data to encrypt
      * @return QByteArray
      */
-    QByteArray decryptRSA(RSA *key, QByteArray &data);
+    QByteArray decryptRSA(RSA *key, const QByteArray &data);
 
     /**
      * @brief Encrypt a byte array with AES 256 CBC

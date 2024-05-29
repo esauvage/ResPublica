@@ -9,6 +9,7 @@
 #include <QMessageBox>
 
 #include <QProcess>
+#include <QCryptographicHash>
 
 #include "dlgeditvote.h"
 #include "VoteScene.h"
@@ -313,8 +314,14 @@ void MainResPublica::on_AVote(std::shared_ptr<Question> question, QVariant choix
 
 void MainResPublica::on_AVoteSecret(std::shared_ptr<Question> question, QVariant choix)
 {
-    _votesSecrets[question].push_back(Vote(choix, false));
-    _electeurCour->addVote(question, "Vote à bulletin secret", false);
+    Vote vote(choix, false);
+    if (vote.checksum().isEmpty())
+    {
+        vote.setChecksum(vote.signe(question->question()));
+    }
+    _votesSecrets[question].push_back(vote);
+    auto clefChiffree = _electeurCour->chiffreClefPublique(vote.checksum());
+    _electeurCour->addVote(question, clefChiffree, false);
 }
 
 void MainResPublica::on_MontrerResultats(std::shared_ptr<Question> question)
@@ -394,6 +401,31 @@ void MainResPublica::on_actionSe_d_sinscrire_triggered()
 {
     if (!_electeurCour)
         return;
+    for (const auto & v : _electeurCour->votes())
+    {
+        if (!v.first->choix().toStringList().contains(v.second.choix().toString()))
+        {
+            auto checksum = _electeurCour->dechiffreClefPrivee(v.second.choix().toString()).toLocal8Bit();
+            auto list = _votesSecrets[v.first];
+            std::list<Vote>::iterator i = list.begin();
+            while (i != list.end())
+            {
+                QCryptographicHash hasher(QCryptographicHash::Blake2s_256);
+                auto decode = hasher.hash((*i).checksum().toLocal8Bit(), QCryptographicHash::Blake2s_256);
+
+                bool isActive = (decode == checksum);
+                if (isActive)
+                {
+                    i = list.erase(i);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+            _votesSecrets[v.first] = list;
+        }
+    }
     _desinscriptions << _electeurCour->pseudonyme();
 }
 

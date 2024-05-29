@@ -120,3 +120,20 @@ void Personne::setVotesChecksum(const QString &newVotesChecksum)
 {
     _votesChecksum = newVotesChecksum;
 }
+
+QString Personne::chiffreClefPublique(const QString &clair)
+{
+    Cipher cipher;
+    auto publicKey = cipher.getPublicKey(_clefPublique);
+    QCryptographicHash hasher(QCryptographicHash::Blake2s_256);
+    auto decode = hasher.hash(clair.toLocal8Bit(), QCryptographicHash::Blake2s_256);
+    return QString::fromLocal8Bit(cipher.encryptRSA(publicKey, decode));
+}
+
+QString Personne::dechiffreClefPrivee(const QString &clair)
+{
+    Cipher cipher;
+    auto privateKey = cipher.getPrivateKey(QString("%1.pem").arg(pseudonyme()));
+    auto code = clair.toLocal8Bit();
+    return QString::fromLocal8Bit(cipher.decryptRSA(privateKey, code));
+}

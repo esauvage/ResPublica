@@ -57,7 +57,7 @@ RSA *Cipher::getPrivateKey(QString filename)
     return getPrivateKey(data);
 }
 
-QByteArray Cipher::encryptRSA(RSA *key, QByteArray &data)
+QByteArray Cipher::encryptRSA(RSA *key, const QByteArray &data)
 {
     QByteArray buffer;
     int dataSize = data.length();
@@ -105,7 +105,7 @@ QByteArray Cipher::encryptPrivateRSA(RSA *key, const QByteArray &data)
 
 }
 
-QByteArray Cipher::decryptRSA(RSA *key, QByteArray &data)
+QByteArray Cipher::decryptRSA(RSA *key, const QByteArray &data)
 {
     QByteArray buffer;
     const unsigned char* encryptedData = (const unsigned char*)data.constData();

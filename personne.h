@@ -34,6 +34,9 @@ public:
     QString votesChecksum() const;
     void setVotesChecksum(const QString &newVotesChecksum);
 
+    QString chiffreClefPublique(const QString &clair);
+    QString dechiffreClefPrivee(const QString &clair);
+
 private:
     QByteArray checksumVotes() const;
 
