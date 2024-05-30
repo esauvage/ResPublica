@@ -45,7 +45,7 @@ private:
     QGraphicsTextItem * _textItem;
     std::shared_ptr<QGraphicsRectItem> _btnVote;
     std::shared_ptr<QGraphicsRectItem> _btnResultat;
-    std::shared_ptr<Question> _vote;
+    std::shared_ptr<Question> _question;
     const std::shared_ptr<Personne> _personne;
 };
 //! [0]

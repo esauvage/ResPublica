@@ -17,7 +17,7 @@ using namespace std;
 QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_ptr<Question> vote,
                                          const std::shared_ptr<Personne> personne,
                                          QGraphicsItem *parent, QObject *objParent)
-    : QObject(objParent), QGraphicsPolygonItem(parent), myDiagramType(diagramType), _vote(vote), _personne(personne)
+    : QObject(objParent), QGraphicsPolygonItem(parent), myDiagramType(diagramType), _question(vote), _personne(personne)
 {
     QPainterPath path;
     switch (myDiagramType) {
@@ -91,37 +91,37 @@ QVariant QuestionGraphicItem::itemChange(GraphicsItemChange change, const QVaria
 
 void QuestionGraphicItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    DlgEditQuestion edtQuestion(_vote);
+    DlgEditQuestion edtQuestion(_question);
     if (!edtQuestion.exec())
     {
         return;
     }
-    _vote->setQuestion(_textItem->toPlainText());
+    _question->setQuestion(_textItem->toPlainText());
 }
 
 void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (_btnVote->rect().contains(event->pos()) && _personne)
     {
-        if (_personne->votes()[_vote].choix().toString() == "Vote à bulletin secret")
+        if (!_question->choix().contains(_personne->votes()[_question].choix().toString()))
         {
             QMessageBox::information(nullptr, "Vote secret", "Vous avez déjà voté à bulletin secret");
         }
         else
         {
             DlgListeQuestion dlg;
-            dlg.setPossibilites(_vote->choix().toStringList());
-            dlg.setSelection(_personne->votes()[_vote].choix().toStringList());
+            dlg.setPossibilites(_question->choix().toStringList());
+            dlg.setSelection(_personne->votes()[_question].choix().toStringList());
             if (dlg.exec())
             {
                 setBrush(Qt::white);
                 if (dlg.estSecret())
                 {
-                    emit AVoteSecret(_vote, dlg.selection());
+                    emit AVoteSecret(_question, dlg.selection());
                 }
                 else
                 {
-                    emit AVote(_vote, dlg.selection());
+                    emit AVote(_question, dlg.selection());
                 }
             }
         }
@@ -130,7 +130,7 @@ void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         if (_btnResultat->rect().contains(event->pos()))
         {
-            emit montrerResultats(_vote);
+            emit montrerResultats(_question);
         }
     }
     QGraphicsPolygonItem::mouseReleaseEvent(event);
