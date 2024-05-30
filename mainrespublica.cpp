@@ -9,7 +9,6 @@
 #include <QMessageBox>
 
 #include <QProcess>
-#include <QCryptographicHash>
 
 #include "dlgeditvote.h"
 #include "VoteScene.h"
@@ -30,7 +29,6 @@ MainResPublica::MainResPublica(QWidget *parent)
     _scene = new VoteScene(this);
     _scene->setSceneRect(QRectF(0, 0, 5000, 5000));
     ui->mainView->setScene(_scene);
-//    ui->actionSe_d_sinscrire->setEnabled(false);
     connect(_scene, &VoteScene::itemInserted, this, &MainResPublica::itemInserted);
 //    connect(scene, &VoteScene::textInserted,
 //            this, &MainWindow::textInserted);
@@ -43,7 +41,6 @@ MainResPublica::~MainResPublica()
     delete ui;
     delete _scene;
 }
-
 
 void MainResPublica::on_actionCr_er_triggered()
 {
@@ -69,7 +66,6 @@ void MainResPublica::itemInserted(QPointF pos)
     connect(voteItem, &QuestionGraphicItem::AVote, this, &MainResPublica::on_AVote);
 }
 
-
 void MainResPublica::on_actionEnregistrer_triggered()
 {
     QFile sortie("Votes.txt");
@@ -87,10 +83,8 @@ void MainResPublica::on_actionEnregistrer_triggered()
         {
             continue;
         }
-        QJsonArray votes;
         for (const auto &v : p->votes())
         {
-            QJsonObject jobject;
             //Test d'absence de problème sur les votes
             if (p == _electeurCour)
             {
@@ -100,16 +94,8 @@ void MainResPublica::on_actionEnregistrer_triggered()
                 }
                 p->setVotesChecksum(p->signatureVotes());
             }
-            jobject["Question"] = v.first->question();
-            jobject["QuestionChecksum"] = QString(v.first->checksum().toBase64());
-            jobject["Choix"] = QJsonValue::fromVariant(v.second.choix());
-            votes.append(jobject);
         }
-        QJsonObject personne;
-        personne["Votes"] = votes;
-        personne["VotesChecksum"] = p->votesChecksum();
-        personne["Pseudo"] = p->pseudonyme();
-        personne["ClefPublique"] = QString::fromUtf8(p->clefPublique());
+        QJsonObject personne = p->ecrireJson();
         if (p == _electeurCour)
         {
             QStringList pseudos;
@@ -122,12 +108,8 @@ void MainResPublica::on_actionEnregistrer_triggered()
             p->setElecteursConnus(pseudos);
             personne["ElecteursConnus"] = QJsonArray::fromStringList(pseudos);
             p->setElecteursChecksum(p->calculElecteursCheckSum().toBase64());
+            personne["ElecteursCheckSum"] = p->electeursChecksum();
         }
-        else
-        {
-            personne["ElecteursConnus"] = QJsonArray::fromStringList(p->electeursConnus());
-        }
-        personne["ElecteursCheckSum"] = p->electeursChecksum();
         electeurs.append(personne);
     }
     corpus["electeurs"] = electeurs;
@@ -180,6 +162,11 @@ void MainResPublica::on_actionOuvrir_triggered()
     FabriqueQuestions fabriqueQuestions;
     fabriqueQuestions.lireJson(corpus["questions"].toArray(), _questions);
 
+    const QJsonArray desinscriptions = corpus["Desinscrits"].toArray();
+    for (const QJsonValue &d : desinscriptions)
+    {
+        _desinscriptions << d.toString();
+    }
     const QJsonArray electeurs = corpus["electeurs"].toArray();
     for (const QJsonValue &e : electeurs)
     {
@@ -197,37 +184,7 @@ void MainResPublica::on_actionOuvrir_triggered()
             nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
             nouvelElecteur->setClefPublique(personne["ClefPublique"].toString().toUtf8());
         }
-        const QJsonArray connus = personne["ElecteursConnus"].toArray();
-        QStringList c;
-        for (const auto & i : connus)
-        {
-            c << i.toString();
-        }
-        nouvelElecteur->setElecteursConnus(c);
-        nouvelElecteur->setElecteursChecksum(personne["ElecteursCheckSum"].toString());
-        if (!nouvelElecteur->verifierElecteurs(personne["ElecteursCheckSum"].toString()))
-        {
-            QMessageBox::information(this, "Corruption du fichier", "La liste des électeurs a été corrompue");
-        }
-        const QJsonArray votes = personne["Votes"].toArray();
-        for (const auto &v : votes)
-        {
-            QJsonObject jobject = v.toObject();
-            for (const shared_ptr<Question> &q : _questions)
-            {
-                if (q->question() != jobject["Question"].toString())
-                {
-                    continue;
-                }
-                bool aVerifier = QString(q->checksum().toBase64()) != jobject["QuestionChecksum"].toString();
-                nouvelElecteur->addVote(q, jobject["Choix"].toVariant(), aVerifier);
-            }
-        }
-        nouvelElecteur->setVotesChecksum(personne["VotesChecksum"].toString());
-        if (!nouvelElecteur->verifierVotes())
-        {
-            QMessageBox::information(this, "Corruption du fichier", QString("Les votes de %1 ont été corrompus").arg(nouvelElecteur->pseudonyme()));
-        }
+        nouvelElecteur->lireJson(personne, _questions);
         _personnes.push_back(nouvelElecteur);
     }
     if (!verifierPresenceConnus())
@@ -273,7 +230,7 @@ bool MainResPublica::verifierPresenceConnus()
         const auto connus = p->electeursConnus();
         for (const auto &c : connus)
         {
-            trouve &= pseudos.contains(c);
+            trouve &= pseudos.contains(c) || _desinscriptions.contains(c);
             if (!trouve) break;
         }
         if (!trouve) break;
@@ -401,31 +358,7 @@ void MainResPublica::on_actionSe_d_sinscrire_triggered()
 {
     if (!_electeurCour)
         return;
-    for (const auto & v : _electeurCour->votes())
-    {
-        if (!v.first->choix().toStringList().contains(v.second.choix().toString()))
-        {
-            auto checksum = _electeurCour->dechiffreClefPrivee(v.second.choix().toString()).toLocal8Bit();
-            auto list = _votesSecrets[v.first];
-            std::list<Vote>::iterator i = list.begin();
-            while (i != list.end())
-            {
-                QCryptographicHash hasher(QCryptographicHash::Blake2s_256);
-                auto decode = hasher.hash((*i).checksum().toLocal8Bit(), QCryptographicHash::Blake2s_256);
-
-                bool isActive = (decode == checksum);
-                if (isActive)
-                {
-                    i = list.erase(i);
-                }
-                else
-                {
-                    ++i;
-                }
-            }
-            _votesSecrets[v.first] = list;
-        }
-    }
+    _electeurCour->supprimeVotesSecrets(_votesSecrets);
     _desinscriptions << _electeurCour->pseudonyme();
 }
 

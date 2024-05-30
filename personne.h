@@ -35,10 +35,16 @@ public:
     void setVotesChecksum(const QString &newVotesChecksum);
 
     QString chiffreClefPublique(const QString &clair);
-    QString dechiffreClefPrivee(const QString &clair);
+
+    void supprimeVotesSecrets(std::map<std::shared_ptr<Question>, std::list<Vote> > &votesSecrets) const;
+    std::list<Vote>::iterator trouverVoteSecret(const QString &choix, std::list<Vote> &votesSecrets) const;
+
+    void lireJson(const QJsonObject &json, const std::list<std::shared_ptr<Question> > &questions);
+    QJsonObject ecrireJson() const;
 
 private:
     QByteArray checksumVotes() const;
+    QString dechiffreClefPrivee(const QString &clair) const;
 
     std::map<std::shared_ptr<Question>, Vote> _votes;
     QString _pseudonyme;

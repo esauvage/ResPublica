@@ -103,7 +103,8 @@ void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (_btnVote->rect().contains(event->pos()) && _personne)
     {
-        if (!_question->choix().contains(_personne->votes()[_question].choix().toString()))
+        auto choix = _personne->votes()[_question].choix();
+        if (!choix.isNull() && (choix.toStringList().length() <= 1) && !_question->choix().toStringList().contains(choix.toString()))
         {
             QMessageBox::information(nullptr, "Vote secret", "Vous avez déjà voté à bulletin secret");
         }
