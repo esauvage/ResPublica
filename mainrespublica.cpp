@@ -79,7 +79,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
     QJsonArray electeurs;
     for (const auto & p : _personnes)
     {
-        if ((p == _electeurCour) && (_desinscriptions.contains(p->pseudonyme())))
+        if ((p == _electeurCour) && (_desinscriptions.end() != std::find(_desinscriptions.begin(), _desinscriptions.end(), _electeurCour)))
         {
             continue;
         }
@@ -102,7 +102,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
             for (const auto & e : _personnes)
             {
                 if (e == p) continue;
-                if (_desinscriptions.contains(e->pseudonyme())) continue;
+                if (std::find(_desinscriptions.begin(), _desinscriptions.end(), e) != _desinscriptions.end()) continue;
                 pseudos << e->pseudonyme();
             }
             p->setElecteursConnus(pseudos);
@@ -139,7 +139,9 @@ void MainResPublica::on_actionEnregistrer_triggered()
     QJsonArray desinscriptions;
     for (auto &v : _desinscriptions)
     {
-        desinscriptions.append(v);
+        QJsonObject personne = v->ecrireJson();
+        personne["Signature"] = v->chiffreClefPrivee(v->pseudonyme());
+        desinscriptions.append(personne);
     }
     corpus["Desinscrits"] = desinscriptions;
     QJsonDocument doc( corpus );
@@ -156,6 +158,7 @@ void MainResPublica::on_actionOuvrir_triggered()
     _questions.clear();
     _personnes.clear();
     _votesSecrets.clear();
+    _desinscriptions.clear();
 
     QJsonDocument loadDoc(QJsonDocument::fromJson(entree.readAll()));
     const QJsonObject corpus = loadDoc.object();
@@ -165,7 +168,19 @@ void MainResPublica::on_actionOuvrir_triggered()
     const QJsonArray desinscriptions = corpus["Desinscrits"].toArray();
     for (const QJsonValue &d : desinscriptions)
     {
-        _desinscriptions << d.toString();
+        const QJsonObject personne = d.toObject();
+        shared_ptr<Personne> nouvelElecteur = make_shared<Personne>();
+        nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
+        nouvelElecteur->setClefPublique(personne["ClefPublique"].toString().toUtf8());
+        auto signature = nouvelElecteur->dechiffreClefPublique(personne["Signature"].toString());
+        if (nouvelElecteur->dechiffreClefPublique(personne["Signature"].toString()) != nouvelElecteur->pseudonyme())
+        {
+            QMessageBox::information(this, "Corruption du fichier", QString("%1 n'a pas signé lui-même sa révocation").arg(nouvelElecteur->pseudonyme()));
+        }
+        else
+        {
+            _desinscriptions.push_back(nouvelElecteur);
+        }
     }
     const QJsonArray electeurs = corpus["electeurs"].toArray();
     for (const QJsonValue &e : electeurs)
@@ -214,6 +229,24 @@ void MainResPublica::on_actionOuvrir_triggered()
             }
         }
     }
+    //Suppression des désinscrits non référencés
+    list <shared_ptr<Personne>> aSuppr;
+    for (const auto & d : _desinscriptions)
+    {
+        bool reference = false;
+        for (const auto & v : _personnes)
+        {
+            reference |= v->electeursConnus().contains(d->pseudonyme());
+        }
+        if (!reference)
+        {
+            aSuppr.push_back(d);
+        }
+    }
+    for (const auto & d : aSuppr)
+    {
+        _desinscriptions.remove(d);
+    }
     creerScene();
 }
 
@@ -225,12 +258,16 @@ bool MainResPublica::verifierPresenceConnus()
     {
         pseudos << p->pseudonyme();
     }
+    for (const auto &p : _desinscriptions)
+    {
+        pseudos << p->pseudonyme();
+    }
     for (const auto &p : _personnes)
     {
         const auto connus = p->electeursConnus();
         for (const auto &c : connus)
         {
-            trouve &= pseudos.contains(c) || _desinscriptions.contains(c);
+            trouve &= pseudos.contains(c);
             if (!trouve) break;
         }
         if (!trouve) break;
@@ -359,6 +396,7 @@ void MainResPublica::on_actionSe_d_sinscrire_triggered()
     if (!_electeurCour)
         return;
     _electeurCour->supprimeVotesSecrets(_votesSecrets);
-    _desinscriptions << _electeurCour->pseudonyme();
+    _electeurCour->deleteVotes();
+    _desinscriptions.push_back(_electeurCour);
 }
 

@@ -111,7 +111,8 @@ bool Personne::verifierVotes()
     auto publicKey = cipher.getPublicKey(_clefPublique);
     auto code = _votesChecksum.toLocal8Bit();
     auto decode = cipher.decryptPublicRSA(publicKey, code);
-    return (decode == checksumVotes());
+    auto checksum = checksumVotes();
+    return (decode == checksum);
 }
 
 QString Personne::votesChecksum() const
@@ -131,6 +132,22 @@ QString Personne::chiffreClefPublique(const QString &clair)
     QCryptographicHash hasher(QCryptographicHash::Blake2s_256);
     auto decode = hasher.hash(clair.toLocal8Bit(), QCryptographicHash::Blake2s_256);
     return QString::fromLocal8Bit(cipher.encryptRSA(publicKey, decode));
+}
+
+QString Personne::chiffreClefPrivee(const QString &clair)
+{
+    Cipher cipher;
+    auto publicKey = cipher.getPrivateKey(QString("%1.pem").arg(pseudonyme()));
+    auto decode = clair.toLocal8Bit();
+    return QString::fromLocal8Bit(cipher.encryptPrivateRSA(publicKey, decode));
+}
+
+QString Personne::dechiffreClefPublique(const QString &chiffre)
+{
+    Cipher cipher;
+    auto publicKey = cipher.getPublicKey(_clefPublique);
+    auto decode = chiffre.toLocal8Bit();
+    return QString::fromLocal8Bit(cipher.decryptPublicRSA(publicKey, decode));
 }
 
 QString Personne::dechiffreClefPrivee(const QString &clair) const

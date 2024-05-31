@@ -42,6 +42,6 @@ private:
     std::map<std::shared_ptr<Question>, std::list<Vote> > _votesSecrets;
     std::shared_ptr<Personne> _electeurCour;
     VoteScene * _scene;
-    QStringList _desinscriptions;
+    std::list<std::shared_ptr<Personne> > _desinscriptions;
 };
 #endif // MAINRESPUBLICA_H

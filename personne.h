@@ -35,6 +35,8 @@ public:
     void setVotesChecksum(const QString &newVotesChecksum);
 
     QString chiffreClefPublique(const QString &clair);
+    QString chiffreClefPrivee(const QString &clair);
+    QString dechiffreClefPublique(const QString &chiffre);
 
     void supprimeVotesSecrets(std::map<std::shared_ptr<Question>, std::list<Vote> > &votesSecrets) const;
     std::list<Vote>::iterator trouverVoteSecret(const QString &choix, std::list<Vote> &votesSecrets) const;
