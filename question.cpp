@@ -1,7 +1,6 @@
 #include "question.h"
 
 #include <QJsonDocument>
-#include <QCryptographicHash>
 
 using namespace std;
 

@@ -9,6 +9,7 @@
 #include <QMessageBox>
 
 #include <QProcess>
+#include <QSettings>
 
 #include "dlgeditvote.h"
 #include "VoteScene.h"
@@ -16,6 +17,8 @@
 #include "questionliste.h"
 #include "dlgconnexion.h"
 #include "dlgresultats.h"
+
+#include <QSqlQuery>
 
 #include <QDebug>
 
@@ -30,10 +33,30 @@ MainResPublica::MainResPublica(QWidget *parent)
     _scene->setSceneRect(QRectF(0, 0, 5000, 5000));
     ui->mainView->setScene(_scene);
     connect(_scene, &VoteScene::itemInserted, this, &MainResPublica::itemInserted);
+    setDatabase();
 //    connect(scene, &VoteScene::textInserted,
 //            this, &MainWindow::textInserted);
 //    connect(scene, &VoteScene::itemSelected,
 //            this, &MainWindow::itemSelected);
+}
+
+//Initialise la base de données et la crée au besoin.
+void MainResPublica::setDatabase()
+{
+    QSqlDatabase database = QSqlDatabase::addDatabase("QSQLITE");
+    QSettings settings;
+    database.setDatabaseName(settings.value("DatabaseName", "respublica.db3").toString());
+    database.open();
+    QSqlQuery sql("PRAGMA TABLE_INFO([UTILISATEURS])");
+    if (!sql.next())
+    {
+        //La table des utilisateurs
+        QSqlQuery("CREATE TABLE `UTILISATEURS` (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, NOM VARCHAR(50) NOT NULL, "
+                  "SEL VARCHAR(50) NOT NULL, HASH VARCHAR(50) NOT NULL)");
+        //La table des positions des questions
+        QSqlQuery("CREATE TABLE `POSITIONS_QUESTIONS` (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QUESTION VARCHAR(50) NOT NULL, "
+                  "X INTEGER NOT NULL, Y INTEGER NOT NULL)");
+    }
 }
 
 MainResPublica::~MainResPublica()

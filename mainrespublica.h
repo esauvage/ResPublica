@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include <QSqlDatabase>
+
 #include "question.h"
 #include "personne.h"
 
@@ -35,6 +37,7 @@ private slots:
 private:
     bool verifierPresenceConnus();
     void creerScene();
+    void setDatabase();
 
     Ui::MainResPublica *ui;
     std::list<std::shared_ptr<Question> > _questions;

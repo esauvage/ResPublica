@@ -15,9 +15,12 @@ public:
     explicit DlgConnexion(QWidget *parent = nullptr);
     ~DlgConnexion();
     const QString pseudonyme() const;
+    void setSel(QString v);
+    const QByteArray hash() const;
 
 private:
     Ui::DlgConnexion *ui;
+    QString _sel;
 };
 
 #endif // DLGCONNEXION_H
