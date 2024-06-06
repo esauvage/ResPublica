@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+class QAbstractButton;
+
 namespace Ui {
 class DlgConnexion;
 }
@@ -17,6 +19,9 @@ public:
     const QString pseudonyme() const;
     void setSel(QString v);
     const QByteArray hash() const;
+
+private slots:
+    void accept() override;
 
 private:
     Ui::DlgConnexion *ui;
