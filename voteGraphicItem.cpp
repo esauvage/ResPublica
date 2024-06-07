@@ -36,9 +36,9 @@ QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_pt
                       << QPointF(-100, 0);
             break;
         case Step:
-            myPolygon << QPointF(-100, -100) << QPointF(100, -100)
-                      << QPointF(100, 100) << QPointF(-100, 100)
-                      << QPointF(-100, -100);
+            myPolygon << QPointF(-10, -10) << QPointF(200, -10)
+                      << QPointF(200, 100) << QPointF(-10, 100)
+                      << QPointF(-10, -10);
             break;
         default:
             myPolygon << QPointF(-120, -80) << QPointF(-70, 80)
@@ -50,9 +50,9 @@ QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_pt
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
-    _btnVote = make_shared<QGraphicsRectItem>(20, 20, 20, 20, this);
+    _btnVote = make_shared<QGraphicsRectItem>(40, 60, 40, 20, this);
     _btnVote->setBrush(Qt::gray);
-    _btnResultat = make_shared<QGraphicsRectItem>(0, 20, 20, 20, this);
+    _btnResultat = make_shared<QGraphicsRectItem>(0, 60, 40, 20, this);
     _btnResultat->setBrush(Qt::black);
     auto textItem = new QGraphicsTextItem(this);
     textItem->setZValue(1000.0);

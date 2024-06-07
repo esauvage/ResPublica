@@ -413,7 +413,6 @@ void MainResPublica::on_actionSe_connecter_triggered()
     creerScene();
 }
 
-
 void MainResPublica::on_actionSe_d_sinscrire_triggered()
 {
     if (!_electeurCour)
@@ -422,4 +421,3 @@ void MainResPublica::on_actionSe_d_sinscrire_triggered()
     _electeurCour->deleteVotes();
     _desinscriptions.push_back(_electeurCour);
 }
-
