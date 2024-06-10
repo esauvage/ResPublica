@@ -23,20 +23,25 @@ public:
     MainResPublica(QWidget *parent = nullptr);
     ~MainResPublica();
 
+    std::list<std::shared_ptr<Question> > questions() const;
+    std::shared_ptr<Personne> electeurCourant() const;
+
+public slots:
+    void on_AVote(std::shared_ptr<Question> question, QVariant choix);
+    void on_AVoteSecret(std::shared_ptr<Question> question, QVariant choix);
+    void on_MontrerResultats(std::shared_ptr<Question> question);
+
 private slots:
     void on_actionCr_er_triggered();
     void itemInserted(QPointF pos);
     void on_actionEnregistrer_triggered();
     void on_actionOuvrir_triggered();
-    void on_AVote(std::shared_ptr<Question> question, QVariant choix);
-    void on_AVoteSecret(std::shared_ptr<Question> question, QVariant choix);
-    void on_MontrerResultats(std::shared_ptr<Question> question);
     void on_actionSe_connecter_triggered();
     void on_actionSe_d_sinscrire_triggered();
 
 private:
     bool verifierPresenceConnus();
-    void creerScene();
+//    void creerScene();
     void setDatabase();
 
     Ui::MainResPublica *ui;

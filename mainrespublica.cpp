@@ -54,9 +54,19 @@ void MainResPublica::setDatabase()
         QSqlQuery("CREATE TABLE `UTILISATEURS` (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, NOM VARCHAR(50) NOT NULL, "
                   "SEL VARCHAR(50) NOT NULL, HASH VARCHAR(50) NOT NULL)");
         //La table des positions des questions
-        QSqlQuery("CREATE TABLE `POSITIONS_QUESTIONS` (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QUESTION VARCHAR(50) NOT NULL, "
+        QSqlQuery("CREATE TABLE `POSITIONS_QUESTIONS` (ID INTEGER NOT NULL PRIMARY KEY, QUESTION VARCHAR(50) NOT NULL, "
                   "X INTEGER NOT NULL, Y INTEGER NOT NULL)");
     }
+}
+
+shared_ptr<Personne> MainResPublica::electeurCourant() const
+{
+    return _electeurCour;
+}
+
+list<shared_ptr<Question> > MainResPublica::questions() const
+{
+    return _questions;
 }
 
 MainResPublica::~MainResPublica()
@@ -170,6 +180,8 @@ void MainResPublica::on_actionEnregistrer_triggered()
     QJsonDocument doc( corpus );
     out << doc.toJson() << "\n";
     sortie.close();
+    //Enregistrement de la scène en BDD
+    _scene->sauvegarde();
 }
 
 void MainResPublica::on_actionOuvrir_triggered()
@@ -270,7 +282,7 @@ void MainResPublica::on_actionOuvrir_triggered()
     {
         _desinscriptions.remove(d);
     }
-    creerScene();
+    _scene->creer(this);
 }
 
 bool MainResPublica::verifierPresenceConnus()
@@ -298,31 +310,39 @@ bool MainResPublica::verifierPresenceConnus()
     return trouve;
 }
 
-void MainResPublica::creerScene()
-{
-    //Création de l'IHM.
-    _scene->clear();
-    map<shared_ptr<Question>, QuestionGraphicItem *>itemsQuestions;
-    for (const auto &q : _questions)
-    {
-        auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, q, _electeurCour);
-        itemsQuestions.insert(QPair<shared_ptr<Question>, QuestionGraphicItem *>(q, item));
-        if (_electeurCour)
-        {
-            itemsQuestions[q]->setBrush(_electeurCour->votes()[q].aConfirmer() ? Qt::red : Qt::white);
-        }
-        else
-        {
-            itemsQuestions[q]->setBrush(Qt::white);
-        }
-        _scene->addItem(item);
-        item->setSelected(true);
-        item->setPos(100 * q->id(), 100 * q->id());
-        connect(item, &QuestionGraphicItem::AVote, this, &MainResPublica::on_AVote);
-        connect(item, &QuestionGraphicItem::AVoteSecret, this, &MainResPublica::on_AVoteSecret);
-        connect(item, &QuestionGraphicItem::montrerResultats, this, &MainResPublica::on_MontrerResultats);
-    }
-}
+// void MainResPublica::creerScene()
+// {
+//     //Création de l'IHM.
+//     _scene->clear();
+//     map<shared_ptr<Question>, QuestionGraphicItem *>itemsQuestions;
+//     for (const auto &q : _questions)
+//     {
+//         auto item = new QuestionGraphicItem(QuestionGraphicItem::Step, q, _electeurCour);
+//         itemsQuestions.insert(QPair<shared_ptr<Question>, QuestionGraphicItem *>(q, item));
+//         if (_electeurCour)
+//         {
+//             itemsQuestions[q]->setBrush(_electeurCour->votes()[q].aConfirmer() ? Qt::red : Qt::white);
+//         }
+//         else
+//         {
+//             itemsQuestions[q]->setBrush(Qt::white);
+//         }
+//         _scene->addItem(item);
+//         item->setSelected(true);
+//         QPoint pos(100 * q->id(), 100 * q->id());
+//         QSqlQuery sqlPos(QString("SELECT X, Y FROM POSITIONS_QUESTIONS WHERE ID = %1").arg(q->id()));
+//         if (sqlPos.next())
+//         {
+//             pos.setX(sqlPos.value(0).toInt());
+//             pos.setY(sqlPos.value(1).toInt());
+//         }
+
+//         item->setPos(pos);
+//         connect(item, &QuestionGraphicItem::AVote, this, &MainResPublica::on_AVote);
+//         connect(item, &QuestionGraphicItem::AVoteSecret, this, &MainResPublica::on_AVoteSecret);
+//         connect(item, &QuestionGraphicItem::montrerResultats, this, &MainResPublica::on_MontrerResultats);
+//     }
+// }
 
 void MainResPublica::on_AVote(std::shared_ptr<Question> question, QVariant choix)
 {
@@ -410,7 +430,7 @@ void MainResPublica::on_actionSe_connecter_triggered()
         }
         ui->actionSe_d_sinscrire->setEnabled(true);
     }
-    creerScene();
+    _scene->creer(this);
 }
 
 void MainResPublica::on_actionSe_d_sinscrire_triggered()

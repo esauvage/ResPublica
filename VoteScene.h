@@ -5,6 +5,8 @@
 
 #include "voteGraphicItem.h"
 
+class MainResPublica;
+
 class VoteScene : public QGraphicsScene
 {
     Q_OBJECT
@@ -13,6 +15,9 @@ public:
     enum Mode { InsertItem, InsertText, MoveItem };
 
     explicit VoteScene(QObject *parent = nullptr);
+    void sauvegarde();
+    void creer(MainResPublica * mainRespublica);
+
     QFont font() const { return myFont; }
     QColor textColor() const { return myTextColor; }
     QColor itemColor() const { return myItemColor; }
@@ -38,6 +43,8 @@ protected:
 
 private:
     bool isItemChange(int type) const;
+
+    std::map<std::shared_ptr<Question>, QuestionGraphicItem *>_itemsQuestions;
 
     QuestionGraphicItem::DiagramType myItemType;
     Mode myMode;
