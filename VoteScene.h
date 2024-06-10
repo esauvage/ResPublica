@@ -24,7 +24,7 @@ public:
     QColor lineColor() const { return myLineColor; }
     void setLineColor(const QColor &color);
     void setTextColor(const QColor &color);
-    void setItemColor(const QColor &color);
+    // void setItemColor(const QColor &color);
     void setFont(const QFont &font);
 
 public slots:

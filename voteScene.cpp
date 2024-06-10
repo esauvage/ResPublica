@@ -6,6 +6,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
 #include <QSqlQuery>
+#include <QSqlError>
 
 using namespace std;
 
@@ -35,6 +36,16 @@ void VoteScene::sauvegarde()
             sqlPos.bindValue(2, question.first->id());
             sqlPos.exec();
         }
+        else
+        {
+            sqlPos.prepare("INSERT INTO POSITIONS_QUESTIONS (X, Y, ID) VALUES (?, ?, ?)");
+            sqlPos.bindValue(0, question.second->pos().x());
+            sqlPos.bindValue(1, question.second->pos().y());
+            sqlPos.bindValue(2, question.first->id());
+            sqlPos.exec();
+        }
+        qDebug() << sqlPos.lastQuery();
+        qDebug() << sqlPos.lastError();
     }
 }
 //! [0]
@@ -54,14 +65,14 @@ void VoteScene::setTextColor(const QColor &color)
 //! [2]
 
 //! [3]
-void VoteScene::setItemColor(const QColor &color)
-{
-    myItemColor = color;
-    if (isItemChange(QuestionGraphicItem::Type)) {
-        QuestionGraphicItem *item = qgraphicsitem_cast<QuestionGraphicItem *>(selectedItems().first());
-        item->setBrush(myItemColor);
-    }
-}
+// void VoteScene::setItemColor(const QColor &color)
+// {
+//     myItemColor = color;
+//     if (isItemChange(QuestionGraphicItem::Type)) {
+//         QuestionGraphicItem *item = qgraphicsitem_cast<QuestionGraphicItem *>(selectedItems().first());
+//         item->setBrush(myItemColor);
+//     }
+// }
 //! [3]
 
 //! [4]
@@ -130,6 +141,7 @@ void VoteScene::creer(MainResPublica * mainRespublica)
 {
     //Création de l'IHM.
     clear();
+    _itemsQuestions.clear();
     auto electeur = mainRespublica->electeurCourant();
     for (const auto &q : mainRespublica->questions())
     {
@@ -137,7 +149,8 @@ void VoteScene::creer(MainResPublica * mainRespublica)
         _itemsQuestions.insert(QPair<shared_ptr<Question>, QuestionGraphicItem *>(q, item));
         if (electeur)
         {
-            _itemsQuestions[q]->setBrush(electeur->votes()[q].aConfirmer() ? Qt::red : Qt::white);
+            const auto aConfirmer = electeur->votes()[q].aConfirmer();
+            _itemsQuestions[q]->setBrush(aConfirmer ? Qt::red : Qt::white);
         }
         else
         {
