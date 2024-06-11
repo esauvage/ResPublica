@@ -38,10 +38,11 @@ void VoteScene::sauvegarde()
         }
         else
         {
-            sqlPos.prepare("INSERT INTO POSITIONS_QUESTIONS (X, Y, ID) VALUES (?, ?, ?)");
+            sqlPos.prepare("INSERT INTO POSITIONS_QUESTIONS (X, Y, ID, QUESTION) VALUES (?, ?, ?, ?)");
             sqlPos.bindValue(0, question.second->pos().x());
             sqlPos.bindValue(1, question.second->pos().y());
             sqlPos.bindValue(2, question.first->id());
+            sqlPos.bindValue(3, question.first->question());
             sqlPos.exec();
         }
         qDebug() << sqlPos.lastQuery();
