@@ -24,6 +24,8 @@ public:
 private slots:
     void on_buttonBox_accepted();
 
+    void on_btnClore_clicked();
+
 private:
     Ui::DlgEditQuestion *ui;
     std::shared_ptr<Question> _question;

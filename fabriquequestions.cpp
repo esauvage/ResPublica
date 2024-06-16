@@ -45,6 +45,7 @@ QJsonArray FabriqueQuestions::ecrireJson(const std::list<std::shared_ptr<Questio
         jobject["id"] = QJsonValue::fromVariant(v->id());
         jobject["Question"] = v->question();
         jobject["Choix"] = QJsonValue::fromVariant(v->choix());
+        jobject["Ouvert"] = v->voteOuvert();
         // If a is true, then we have not key-value mapped to K
         bool absent = true;
         // Traverse the map

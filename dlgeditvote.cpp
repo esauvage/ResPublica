@@ -97,3 +97,10 @@ int DlgEditQuestion::type() const
 {
     return ui->cbxType->currentData().toInt();
 }
+
+void DlgEditQuestion::on_btnClore_clicked()
+{
+    if (!_question) return;
+    _question->setVoteOuvert(false);
+}
+

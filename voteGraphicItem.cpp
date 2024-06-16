@@ -105,7 +105,6 @@ void QuestionGraphicItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     {
         return;
     }
-    _question->setQuestion(_textItem->toPlainText());
 }
 
 void QuestionGraphicItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

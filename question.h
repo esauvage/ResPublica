@@ -24,11 +24,15 @@ public:
 
     static size_t suivantId;
 
+    bool voteOuvert() const;
+    void setVoteOuvert(bool newVoteOuvert);
+
 private:
     size_t _id;
     QString _question;
     QVariant _resultat;
     QDateTime _ouvertureDate;
+    bool _voteOuvert;
 };
 
 QTextStream & operator << (QTextStream & out, const std::shared_ptr<Question> v);

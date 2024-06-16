@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QCryptographicHash>
 
 #include <QMessageBox>
 
@@ -141,6 +142,27 @@ void MainResPublica::on_actionEnregistrer_triggered()
             personne["ElecteursConnus"] = QJsonArray::fromStringList(pseudos);
             p->setElecteursChecksum(p->calculElecteursCheckSum().toBase64());
             personne["ElecteursCheckSum"] = p->electeursChecksum();
+            for (const auto & q : _questions)
+            {
+                if (q->voteOuvert()) continue;
+                list<Vote> votes;
+                for(const auto &p : _personnes)
+                {
+                    votes.push_back(p->votes()[q]);
+                }
+                for(const auto &p : _votesSecrets[q])
+                {
+                    votes.push_back(p);
+                }
+                QStringList s;
+                for (const auto & v : votes)
+                {
+                    s << v.choix().toStringList();
+                }
+                QCryptographicHash hasher(QCryptographicHash::Blake2s_256);
+                auto hash = hasher.hash(s.join(";").toLocal8Bit(), QCryptographicHash::Blake2s_256);
+                personne["VotesClos"] = p->chiffreClefPrivee(hash);
+            }
         }
         electeurs.append(personne);
     }

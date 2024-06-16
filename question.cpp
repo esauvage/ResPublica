@@ -7,7 +7,7 @@ using namespace std;
 size_t Question::suivantId = 1;
 
 Question::Question()
-    :_id(0)
+    :_id(0), _voteOuvert(true)
 {
     _id = _id ? _id : Question::suivantId++;
 
@@ -36,6 +36,16 @@ size_t Question::id() const
 void Question::setId(size_t newId)
 {
     _id = newId;
+}
+
+bool Question::voteOuvert() const
+{
+    return _voteOuvert;
+}
+
+void Question::setVoteOuvert(bool newVoteOuvert)
+{
+    _voteOuvert = newVoteOuvert;
 }
 
 QTextStream &operator <<(QTextStream & out, const shared_ptr<Question> v)
