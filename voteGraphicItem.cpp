@@ -52,9 +52,18 @@ QuestionGraphicItem::QuestionGraphicItem(DiagramType diagramType, std::shared_pt
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     _btnVote = make_shared<QGraphicsRectItem>(40, 60, 40, 20, this);
     _btnVote->setBrush(Qt::gray);
+    auto textItem = new QGraphicsTextItem(this);
+    textItem->setZValue(1000.0);
+    textItem->setPlainText("Voter");
+    textItem->setPos(40, 60);
     _btnResultat = make_shared<QGraphicsRectItem>(0, 60, 40, 20, this);
     _btnResultat->setBrush(Qt::black);
-    auto textItem = new QGraphicsTextItem(this);
+    textItem = new QGraphicsTextItem(this);
+    textItem->setZValue(1000.0);
+    textItem->setPlainText("Resultats");
+    textItem->setPos(0, 60);
+
+    textItem = new QGraphicsTextItem(this);
     textItem->setZValue(1000.0);
     textItem->setPlainText(vote->question());
 }

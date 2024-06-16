@@ -77,22 +77,21 @@ MainResPublica::~MainResPublica()
 
 void MainResPublica::on_actionCr_er_triggered()
 {
-    auto nouveauQuestion = make_shared<QuestionListe>();
-    _questions.push_back(nouveauQuestion);
-    DlgEditQuestion dlg(nouveauQuestion, this);
-    dlg.exec();
+    itemInserted(QPointF());
 }
 
 void MainResPublica::itemInserted(QPointF pos)
 {
-    auto nouveauQuestion = make_shared<QuestionListe>();
-    DlgEditQuestion dlg(nouveauQuestion, this);
+    DlgEditQuestion dlg(nullptr, this);
+    dlg.setTypes(FabriqueQuestions::getMapTypeToIds());
     if (!dlg.exec())
     {
         return;
     }
-    _questions.push_back(nouveauQuestion);
-    QuestionGraphicItem * voteItem = new QuestionGraphicItem(QuestionGraphicItem::Step, nouveauQuestion, _electeurCour);
+    // FabriqueQuestions fabrique;
+    // auto nouveauQuestion = fabrique.creeScrutin(dlg.type());
+    _questions.push_back(dlg.question());
+    QuestionGraphicItem * voteItem = new QuestionGraphicItem(QuestionGraphicItem::Step, dlg.question(), _electeurCour);
     voteItem->setBrush(Qt::white);
     _scene->addItem(voteItem);
     voteItem->setPos(pos);

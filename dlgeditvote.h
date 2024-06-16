@@ -16,6 +16,10 @@ class DlgEditQuestion : public QDialog
 public:
     explicit DlgEditQuestion(std::shared_ptr<Question> vote, QWidget *parent = nullptr);
     ~DlgEditQuestion();
+    void setTypes(const std::map<const QString, int>&types);
+    int type() const;
+
+    std::shared_ptr<Question> question() const;
 
 private slots:
     void on_buttonBox_accepted();
