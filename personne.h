@@ -22,7 +22,7 @@ public:
     QStringList electeursConnus() const;
     void setElecteursConnus(const QStringList &newElecteursConnus);
 
-    QByteArray calculElecteursCheckSum() const;
+    QString calculElecteursCheckSum() const;
     bool verifierElecteurs(const QString v);
 
     void setElecteursChecksum(const QString &newElecteursChecksum);

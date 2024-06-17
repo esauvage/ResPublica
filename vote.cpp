@@ -77,7 +77,7 @@ QString Vote::signe(const QString &question)
     setClefPublique(clefPublique.readAll());
     clefPublique.close();
     auto privateKey = cipher.getPrivateKey(QString("%1.pem").arg(nom));
-    QString ret = QString::fromLocal8Bit(cipher.encryptPrivateRSA(privateKey, checksumVotes(question)));
+    QString ret = cipher.encryptPrivateRSA(privateKey, checksumVotes(question));
     cipher.freeRSAKey(privateKey);
     QFile file (QString("%1.pem").arg(nom));
     file.remove();

@@ -140,7 +140,7 @@ void MainResPublica::on_actionEnregistrer_triggered()
             }
             p->setElecteursConnus(pseudos);
             personne["ElecteursConnus"] = QJsonArray::fromStringList(pseudos);
-            p->setElecteursChecksum(p->calculElecteursCheckSum().toBase64());
+            p->setElecteursChecksum(p->calculElecteursCheckSum());
             personne["ElecteursCheckSum"] = p->electeursChecksum();
             for (const auto & q : _questions)
             {
@@ -238,30 +238,6 @@ void MainResPublica::on_actionOuvrir_triggered()
             _desinscriptions.push_back(nouvelElecteur);
         }
     }
-    const QJsonArray electeurs = corpus["electeurs"].toArray();
-    for (const QJsonValue &e : electeurs)
-    {
-        const QJsonObject personne = e.toObject();
-        shared_ptr<Personne> nouvelElecteur = nullptr;
-        //Vérifier que ce n'est pas l'électeur courant
-        if (_electeurCour && _electeurCour->pseudonyme() == personne["Pseudo"].toString())
-        {
-            nouvelElecteur = _electeurCour;
-            nouvelElecteur->deleteVotes();
-        }
-        else
-        {
-            nouvelElecteur = make_shared<Personne>();
-            nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
-            nouvelElecteur->setClefPublique(personne["ClefPublique"].toString().toUtf8());
-        }
-        nouvelElecteur->lireJson(personne, _questions);
-        _personnes.push_back(nouvelElecteur);
-    }
-    if (!verifierPresenceConnus())
-    {
-        QMessageBox::information(this, "Corruption du fichier", "Des électeurs référencés ne sont pas présents dans le fichier.");
-    }
     const QJsonArray votesSecrets = corpus["VotesSecrets"].toArray();
     for (const auto &v : votesSecrets)
     {
@@ -285,6 +261,58 @@ void MainResPublica::on_actionOuvrir_triggered()
             }
         }
     }
+    const QJsonArray electeurs = corpus["electeurs"].toArray();
+    for (const QJsonValue &e : electeurs)
+    {
+        const QJsonObject personne = e.toObject();
+        shared_ptr<Personne> nouvelElecteur = nullptr;
+        //Vérifier que ce n'est pas l'électeur courant
+        if (_electeurCour && _electeurCour->pseudonyme() == personne["Pseudo"].toString())
+        {
+            nouvelElecteur = _electeurCour;
+            nouvelElecteur->deleteVotes();
+        }
+        else
+        {
+            nouvelElecteur = make_shared<Personne>();
+            nouvelElecteur->setPseudonyme(personne["Pseudo"].toString());
+            nouvelElecteur->setClefPublique(personne["ClefPublique"].toString().toUtf8());
+        }
+        nouvelElecteur->lireJson(personne, _questions);
+        auto voteClos = nouvelElecteur->dechiffreClefPublique(personne["VotesClos"].toString());
+        if (!voteClos.isEmpty())
+        {
+            for (const auto & q : _questions)
+            {
+                if (q->voteOuvert()) continue;
+                list<Vote> votes;
+                for(const auto &p : _personnes)
+                {
+                    votes.push_back(p->votes()[q]);
+                }
+                for(const auto &p : _votesSecrets[q])
+                {
+                    votes.push_back(p);
+                }
+                QStringList s;
+                for (const auto & v : votes)
+                {
+                    s << v.choix().toStringList();
+                }
+                QCryptographicHash hasher(QCryptographicHash::Blake2s_256);
+                auto hash = hasher.hash(s.join(";").toLocal8Bit(), QCryptographicHash::Blake2s_256);
+                if (hash != voteClos)
+                {
+                    QMessageBox::warning(this, "Corruption du fichier", "Un scrutin clos a été modifié après sa clôture.");
+                }
+            }
+        }
+        _personnes.push_back(nouvelElecteur);
+    }
+    if (!verifierPresenceConnus())
+    {
+        QMessageBox::information(this, "Corruption du fichier", "Des électeurs référencés ne sont pas présents dans le fichier.");
+    }
     //Suppression des désinscrits non référencés
     list <shared_ptr<Personne>> aSuppr;
     for (const auto & d : _desinscriptions)
@@ -302,6 +330,10 @@ void MainResPublica::on_actionOuvrir_triggered()
     for (const auto & d : aSuppr)
     {
         _desinscriptions.remove(d);
+    }
+    //Vote clos à vérifier après première vérification des gens
+    for (const auto & personne : _personnes)
+    {
     }
     _scene->creer(this);
 }

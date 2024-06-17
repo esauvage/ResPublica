@@ -81,14 +81,14 @@ QByteArray Cipher::encryptRSA(RSA *key, const QByteArray &data)
 
 }
 
-QByteArray Cipher::encryptPrivateRSA(RSA *key, const QByteArray &data)
+QString Cipher::encryptPrivateRSA(RSA *key, const QByteArray &data)
 {
-    QByteArray buffer;
+    QString buffer;
     int dataSize = data.length();
     const unsigned char* str = (const unsigned char*)data.constData();
     int rsaLen = RSA_size(key);
 
-    unsigned char* ed = (unsigned char*)malloc(rsaLen);
+    unsigned char* ed = (unsigned char*)malloc(rsaLen + 1);
     // RSA_private_encrypt() - if you are encrypting with the private key
     int resultLen = RSA_private_encrypt(dataSize, (const unsigned char*)str, ed, key, PADDING);
 
@@ -97,12 +97,11 @@ QByteArray Cipher::encryptPrivateRSA(RSA *key, const QByteArray &data)
         qCritical() << "Could not encrypt: " << ERR_error_string(ERR_get_error(),NULL);
         return buffer;
     }
-
-    buffer = QByteArray(reinterpret_cast<char*>(ed), resultLen);
+    ed[resultLen] = 0;
+    buffer = QString(reinterpret_cast<char*>(ed));
     free(ed);
 
     return buffer;
-
 }
 
 QByteArray Cipher::decryptRSA(RSA *key, const QByteArray &data)
@@ -128,14 +127,14 @@ QByteArray Cipher::decryptRSA(RSA *key, const QByteArray &data)
     return buffer;
 }
 
-QByteArray Cipher::decryptPublicRSA(RSA *key, const QByteArray &data)
+QString Cipher::decryptPublicRSA(RSA *key, const QByteArray &data)
 {
-    QByteArray buffer;
+    QString buffer;
     const unsigned char* encryptedData = (const unsigned char*)data.constData();
 
     int rsaLen = RSA_size(key);
 
-    unsigned char* ed = (unsigned char*)malloc(rsaLen);
+    unsigned char* ed = (unsigned char*)malloc(rsaLen + 1);
     //RSA_public_decrypt() - if you are using the public key
     int resultLen = RSA_public_decrypt(rsaLen, encryptedData, ed, key, PADDING);
 
@@ -144,8 +143,8 @@ QByteArray Cipher::decryptPublicRSA(RSA *key, const QByteArray &data)
         qCritical() << "Could not decrypt: " << ERR_error_string(ERR_get_error(),NULL);
         return buffer;
     }
-
-    buffer = QByteArray(reinterpret_cast<char*>(ed), resultLen);
+    ed[resultLen] = 0;
+    buffer = QString(reinterpret_cast<char*>(ed));
     free(ed);
 
     return buffer;

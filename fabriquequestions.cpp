@@ -31,6 +31,7 @@ bool FabriqueQuestions::lireJson(const QJsonArray &questions, list<shared_ptr<Qu
         nouvelleQuestion->setId(jobject["id"].toInteger());
         nouvelleQuestion->setQuestion(jobject["Question"].toString());
         nouvelleQuestion->setChoix(jobject["Choix"].toVariant());
+        nouvelleQuestion->setVoteOuvert(jobject["Ouvert"].toBool());
         _questions.push_back(nouvelleQuestion);
     }
     return true;

@@ -57,7 +57,7 @@ void Personne::setElecteursConnus(const QStringList &newElecteursConnus)
     _electeursConnus = newElecteursConnus;
 }
 
-QByteArray Personne::calculElecteursCheckSum() const
+QString Personne::calculElecteursCheckSum() const
 {
     Cipher cipher;
     auto privateKey = cipher.getPrivateKey(QString("%1.pem").arg(pseudonyme()));
@@ -102,7 +102,7 @@ QString Personne::signatureVotes() const
 {
     Cipher cipher;
     auto privateKey = cipher.getPrivateKey(QString("%1.pem").arg(pseudonyme()));
-    return QString::fromLocal8Bit(cipher.encryptPrivateRSA(privateKey, checksumVotes()));
+    return cipher.encryptPrivateRSA(privateKey, checksumVotes());
 }
 
 bool Personne::verifierVotes()
@@ -139,7 +139,7 @@ QString Personne::chiffreClefPrivee(const QString &clair)
     Cipher cipher;
     auto publicKey = cipher.getPrivateKey(QString("%1.pem").arg(pseudonyme()));
     auto decode = clair.toLocal8Bit();
-    return QString::fromLocal8Bit(cipher.encryptPrivateRSA(publicKey, decode));
+    return cipher.encryptPrivateRSA(publicKey, decode);
 }
 
 QString Personne::dechiffreClefPublique(const QString &chiffre)
@@ -147,7 +147,7 @@ QString Personne::dechiffreClefPublique(const QString &chiffre)
     Cipher cipher;
     auto publicKey = cipher.getPublicKey(_clefPublique);
     auto decode = chiffre.toLocal8Bit();
-    return QString::fromLocal8Bit(cipher.decryptPublicRSA(publicKey, decode));
+    return cipher.decryptPublicRSA(publicKey, decode);
 }
 
 QString Personne::dechiffreClefPrivee(const QString &clair) const
